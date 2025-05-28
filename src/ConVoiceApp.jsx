@@ -9,8 +9,10 @@ import { generateSampleData } from './data/sampleData'; // Import generateSample
 // Removed: import { events as initialEventsData } from './data/events.js';
 import { members as membersListData } from './data/members.js';
 import { getYearlyData } from './data/yearlyDataLoader.js'; // Added import
+import { getInitialTheme, applyTheme } from './utils/theme.js'; // Added theme imports
 
 const ConVoiceApp = () => {
+    const [theme, setTheme] = useState(getInitialTheme()); // Added theme state
     const [allTermine, setAllTermine] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedYear, setSelectedYear] = useState(null); // Renamed from yearFilter, initialized to null
@@ -46,6 +48,11 @@ const ConVoiceApp = () => {
         };
         loadAppConfig();
     }, []); // Runs once on mount
+
+    // useEffect to apply the current theme
+    useEffect(() => {
+        applyTheme(theme);
+    }, [theme]);
 
     // useEffect to load data based on selectedYear
     useEffect(() => {
@@ -117,12 +124,14 @@ const ConVoiceApp = () => {
     // Removed old availableYears useMemo, as it's now a state loaded from config.json
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-blue-50">
+        <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-gray-900">
             <Header
                 searchTerm={searchTerm}
                 setSearchTerm={setSearchTerm}
                 mobileFiltersOpen={mobileFiltersOpen}
                 setMobileFiltersOpen={setMobileFiltersOpen}
+                theme={theme} // Pass theme state
+                setTheme={setTheme} // Pass setTheme function
             />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

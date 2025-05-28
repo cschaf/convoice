@@ -3,8 +3,10 @@ export const applyTheme = (theme) => {
   const root = document.documentElement;
   if (theme === 'dark') {
     root.classList.add('dark');
+    root.style.colorScheme = 'dark'; // Add this line
   } else {
     root.classList.remove('dark');
+    root.style.colorScheme = 'light'; // Add this line
   }
   try {
     localStorage.setItem('theme', theme);

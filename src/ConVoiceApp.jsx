@@ -23,7 +23,7 @@ const ConVoiceApp = () => {
     useEffect(() => {
         const loadAppConfig = async () => {
             try {
-                const response = await fetch('/data/config.json'); // Assuming config.json is in src/data/
+                const response = await fetch('/config.json'); // Changed path to /config.json
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }

@@ -36,7 +36,7 @@ const FilterSidebar = ({
               Jahr
             </label>
             <select
-              value={yearFilter}
+              value={yearFilter || ''} // Handle null value for selectedYear
               onChange={(e) => setYearFilter(e.target.value)}
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
             >

@@ -6,6 +6,8 @@ import EventCard from './components/EventCard';
 import NextEventHighlight from './components/NextEventHighlight';
 import { downloadICS } from './utils/icsHelper';
 import { generateSampleData } from './data/sampleData'; // Import generateSampleData
+import { events as initialEventsData } from './data/events.js';
+import { members as membersListData } from './data/members.js';
 
 const ConVoiceApp = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -17,7 +19,15 @@ const ConVoiceApp = () => {
     // Beispiel-Daten für Chormitglieder und Events was removed from here.
     // It's now imported from ../data/sampleData.js
 
-    const [allTermine] = useState(generateSampleData());
+    const exampleExceptionalDates = ['2025-01-28', '2025-04-22', '2025-08-19'];
+
+    // Add default Sommerferien to the provided exceptionalTimespans
+    const sommerferien = { start: '2025-07-07', end: '2025-07-29' };
+    const herbstferien = { start: '2025-10-13', end: '2025-10-25' };
+    const weihnachtsferien = { start: '2025-12-22', end: '2026-01-05' };
+
+    const exampleExceptionalTimespans = [sommerferien, herbstferien,weihnachtsferien];
+    const [allTermine] = useState(generateSampleData(initialEventsData, membersListData, exampleExceptionalDates, exampleExceptionalTimespans));
 
     // Gefilterte Termine
     const filteredTermine = useMemo(() => {

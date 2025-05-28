@@ -5,20 +5,13 @@ export const generateSampleData = (initialEvents = [], membersData = [], excepti
         date: `2025-${member.birthday.slice(5)}`,
         type: 'geburtstag',
         memberName: member.name,
-        description: `🎉 ${member.name} feiert Geburtstag!`
+        description: `🎉 ${member.name} hat Geburtstag!`
     }));
 
     // Chorproben generieren (jeden Dienstag, außer bei Event-Konflikten)
     const chorproben = [];
     const endDate = new Date('2025-12-31'); // Ensure endDate is defined
     const eventDates = initialEvents.map(e => e.date);
-
-    // Add default Sommerferien to the provided exceptionalTimespans
-    const sommerferien = { start: '2025-07-07', end: '2025-07-29' };
-    if (!exceptionalTimespans.some(t => t.start === sommerferien.start && t.end === sommerferien.end)) {
-        exceptionalTimespans.push(sommerferien);
-    }
-
     let currentDate = new Date(2025, 0, 7, 19, 0, 0); // First Tuesday of 2025, 19:00 (Jan 7, 2025)
     const lastDateOfYear = new Date(endDate.getFullYear(), 11, 31); // December 31st of the target year
 

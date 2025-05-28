@@ -13,7 +13,7 @@ Eine moderne Web-App zur Verwaltung von Terminen für den ConVoice Gospel Chor B
 
 ## Live Demo
 
-[Zur App](https://dein-username.github.io/convoice-terminverwaltung/)
+[Zur App](https://cschaf.github.io/convoice/)
 
 ## Entwicklung
 

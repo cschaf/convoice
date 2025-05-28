@@ -23,11 +23,10 @@ const ConVoiceApp = () => {
     useEffect(() => {
         const loadAppConfig = async () => {
             try {
-                const response = await fetch(`${import.meta.env.BASE_URL}config.json`); // Use BASE_URL
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const config = await response.json();
+                // Changed to dynamic import. Path is relative to this file (src/ConVoiceApp.jsx)
+                const configModule = await import('./data/config.json'); 
+                const config = configModule.default || configModule; // Handle default export
+
                 setAvailableYears(config.availableYears);
 
                 const actualCurrentYear = new Date().getFullYear();
@@ -39,7 +38,7 @@ const ConVoiceApp = () => {
                     setSelectedYear(actualCurrentYear); // Fallback to actual current year
                 }
             } catch (error) {
-                console.error("Failed to load app config:", error);
+                console.error("Failed to load app config via import:", error); // Updated error message
                 // Fallback in case config loading fails
                 setAvailableYears([new Date().getFullYear()]);
                 setSelectedYear(new Date().getFullYear());

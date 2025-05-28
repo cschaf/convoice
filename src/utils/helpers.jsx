@@ -29,7 +29,11 @@ export const getTerminAccent = (type) => {
 };
 
 export const formatDate = (dateStr) => {
-    const date = new Date(dateStr);
+    const parts = dateStr.split('-');
+    const year = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1; // Month is 0-indexed in JavaScript Date
+    const day = parseInt(parts[2], 10);
+    const date = new Date(year, month, day);
     return date.toLocaleDateString('de-DE', {
         weekday: 'long',
         year: 'numeric',

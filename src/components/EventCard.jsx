@@ -7,7 +7,7 @@ import {
   formatDate,
   isTerminPast,
   getDaysUntilTermin
-} from '../utils/helpers';
+} from '../utils/helpers.jsx';
 
 const EventCard = ({
   termin,

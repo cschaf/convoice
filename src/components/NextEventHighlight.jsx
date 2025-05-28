@@ -6,7 +6,7 @@ import {
   getTerminAccent,
   formatDate,
   getDaysUntilTermin
-} from '../utils/helpers';
+} from '../utils/helpers.jsx';
 
 const NextEventHighlight = ({
   nextTermin,

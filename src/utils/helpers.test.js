@@ -43,4 +43,39 @@ describe('formatDate', () => {
         expect(formattedDate.startsWith('Dienstag')).toBe(true);
         expect(formattedDate).toBe('Dienstag, 1. April 2025');
     });
+
+    it('Test Case 7: should correctly format Tuesday before DST start (2025-03-25)', () => {
+        const dateString = '2025-03-25';
+        const formattedDate = formatDate(dateString);
+        expect(formattedDate.startsWith('Dienstag')).toBe(true);
+        expect(formattedDate).toBe('Dienstag, 25. März 2025');
+    });
+
+    it('Test Case 8: should correctly format Tuesday after DST start (2025-04-01)', () => {
+        const dateString = '2025-04-01'; // Already covered by Test Case 6, but good for explicit check
+        const formattedDate = formatDate(dateString);
+        expect(formattedDate.startsWith('Dienstag')).toBe(true);
+        expect(formattedDate).toBe('Dienstag, 1. April 2025');
+    });
+
+    it('Test Case 9: should correctly format Tuesday before DST end (2025-10-21)', () => {
+        const dateString = '2025-10-21';
+        const formattedDate = formatDate(dateString);
+        expect(formattedDate.startsWith('Dienstag')).toBe(true);
+        expect(formattedDate).toBe('Dienstag, 21. Oktober 2025');
+    });
+
+    it('Test Case 10: should correctly format Tuesday after DST end (2025-10-28)', () => {
+        const dateString = '2025-10-28'; // Already covered by Test Case 3, but good for explicit check
+        const formattedDate = formatDate(dateString);
+        expect(formattedDate.startsWith('Dienstag')).toBe(true);
+        expect(formattedDate).toBe('Dienstag, 28. Oktober 2025');
+    });
+
+    it('Test Case 11: should correctly format Monday (2025-03-24)', () => {
+        const dateString = '2025-03-24';
+        const formattedDate = formatDate(dateString);
+        expect(formattedDate.startsWith('Montag')).toBe(true);
+        expect(formattedDate).toBe('Montag, 24. März 2025');
+    });
 });

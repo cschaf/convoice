@@ -10,43 +10,49 @@ export const generateSampleData = (initialEvents = [], membersData = [], excepti
 
     // Chorproben generieren (jeden Dienstag, außer bei Event-Konflikten)
     const chorproben = [];
-    const startDate = new Date('2025-01-01');
-    const endDate = new Date('2025-12-31');
+    const endDate = new Date('2025-12-31'); // Ensure endDate is defined
     const eventDates = initialEvents.map(e => e.date);
 
     // Add default Sommerferien to the provided exceptionalTimespans
-    // Note: This modifies the exceptionalTimespans array passed as a parameter.
-    // If a new array is desired, exceptionalTimespans should be cloned first.
     const sommerferien = { start: '2025-07-07', end: '2025-07-29' };
     if (!exceptionalTimespans.some(t => t.start === sommerferien.start && t.end === sommerferien.end)) {
         exceptionalTimespans.push(sommerferien);
     }
 
-    for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
-        if (date.getDay() === 2) { // Dienstag
-            const dateStr = date.toISOString().split('T')[0];
-            const hasEvent = eventDates.includes(dateStr);
-            const isExceptionalDate = exceptionalDates.includes(dateStr);
-            const inExceptionalTimespan = exceptionalTimespans.some(timespan => {
-                const currentDate = new Date(dateStr);
-                const timespanStart = new Date(timespan.start);
-                const timespanEnd = new Date(timespan.end);
-                return currentDate >= timespanStart && currentDate <= timespanEnd;
-            });
+    let currentDate = new Date(2025, 0, 7, 19, 0, 0); // First Tuesday of 2025, 19:00 (Jan 7, 2025)
+    const lastDateOfYear = new Date(endDate.getFullYear(), 11, 31); // December 31st of the target year
 
-            if (!hasEvent && !isExceptionalDate && !inExceptionalTimespan) {
-                chorproben.push({
-                    id: `p${dateStr}`,
-                    title: 'Chorprobe',
-                    date: dateStr,
-                    startTime: '19:00',
-                    endTime: '20:30',
-                    type: 'chorprobe',
-                    description: 'Wöchentliche Chorprobe',
-                    location: 'Gemeindehaus Woltershausen'
-                });
-            }
+    while (currentDate <= lastDateOfYear) {
+        const year = currentDate.getFullYear();
+        const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+        const day = currentDate.getDate().toString().padStart(2, '0');
+        const dateStr = `${year}-${month}-${day}`;
+
+        const hasEvent = eventDates.includes(dateStr);
+        const isExceptionalDate = exceptionalDates.includes(dateStr);
+        const isInExceptionalTimespan = exceptionalTimespans.some(span => {
+            const spanStart = new Date(span.start);
+            const spanEnd = new Date(span.end);
+            // Create a Date object for dateStr at midnight for comparison to avoid time-of-day issues with timespan checks
+            const currentCheckDate = new Date(year, currentDate.getMonth(), day);
+            return currentCheckDate >= spanStart && currentCheckDate <= spanEnd;
+        });
+
+        if (!hasEvent && !isExceptionalDate && !isInExceptionalTimespan) {
+            chorproben.push({
+                id: `p${dateStr}`,
+                title: 'Chorprobe',
+                date: dateStr,
+                startTime: '19:00',
+                endTime: '20:30',
+                type: 'chorprobe',
+                description: 'Wöchentliche Chorprobe',
+                location: 'Gemeindehaus Woltershausen'
+            });
         }
+
+        // Increment currentDate by 7 days
+        currentDate.setDate(currentDate.getDate() + 7);
     }
 
     return [...initialEvents, ...birthdays, ...chorproben].sort((a, b) =>

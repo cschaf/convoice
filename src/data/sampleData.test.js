@@ -37,7 +37,7 @@ describe('generateSampleData', () => {
     });
 
     it('Test Case 4: should skip default Sommerferien timespan', () => {
-        const data = generateSampleData(initialEventsData, membersListData); // Sommerferien '2025-07-07' to '2025-07-29'
+        const data = generateSampleData(initialEventsData, membersListData, [], []); // Sommerferien '2025-07-07' to '2025-07-29'
 
         // Check for rehearsals within the default vacation period
         const skippedRehearsalJuly8 = data.find(item => item.type === 'chorprobe' && item.date === '2025-07-08');
@@ -57,5 +57,40 @@ describe('generateSampleData', () => {
         const rehearsalAfterVacation = data.find(item => item.type === 'chorprobe' && item.date === '2025-08-05');
         expect(rehearsalAfterVacation).toBeDefined();
         expect(rehearsalAfterVacation.title).toBe('Chorprobe');
+    });
+
+    describe('DST and Date Generation Logic Tests', () => {
+        const allGeneratedData = generateSampleData(initialEventsData, membersListData, [], []);
+        const allChoirProben = allGeneratedData.filter(item => item.type === 'chorprobe');
+
+        it('Test Case 5: Consistent Tuesday Generation Across DST', () => {
+            const dstTestDates = [
+                '2025-03-25', // Tuesday before DST start
+                '2025-04-01', // Tuesday after DST start
+                '2025-10-21', // Tuesday before DST end
+                '2025-10-28', // Tuesday after DST end
+            ];
+
+            dstTestDates.forEach(dateStr => {
+                const rehearsal = allChoirProben.find(item => item.date === dateStr);
+                expect(rehearsal).toBeDefined();
+                expect(rehearsal.title).toBe('Chorprobe');
+                // Optionally, check time if it was part of the object, but it's fixed at 19:00-20:30
+            });
+        });
+
+        it('Test Case 6: No rehearsals on other days (spot check)', () => {
+            const notATuesday = '2025-03-24'; // Monday
+            const rehearsal = allChoirProben.find(item => item.date === notATuesday);
+            expect(rehearsal).toBeUndefined();
+        });
+
+        it('Test Case 7: Reasonable number of rehearsals in 2025', () => {
+            // 2025 has 52 Tuesdays.
+            // Sommerferien (July 7 to July 29) skip 4 Tuesdays (July 8, 15, 22, 29).
+            // initialEventsData does not have any events on Tuesdays.
+            const expectedRehearsals = 52 - 4;
+            expect(allChoirProben.length).toBe(expectedRehearsals);
+        });
     });
 });

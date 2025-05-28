@@ -37,10 +37,10 @@ const FilterSidebar = ({
             </label>
             <select
               value={yearFilter || ''} // Handle null value for selectedYear
-              onChange={(e) => setYearFilter(e.target.value)}
+              onChange={(e) => setYearFilter(parseInt(e.target.value, 10))} // Parse value to int
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500"
             >
-              <option value="all">Alle Jahre</option>
+              {/* Removed: <option value="all">Alle Jahre</option> */}
               {availableYears.map(year => (
                 <option key={year} value={year}>{year}</option>
               ))}

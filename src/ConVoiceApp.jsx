@@ -6,9 +6,9 @@ import EventCard from './components/EventCard';
 import NextEventHighlight from './components/NextEventHighlight';
 import { downloadICS } from './utils/icsHelper';
 import { generateSampleData } from './data/sampleData'; // Import generateSampleData
-import { events as initialEventsData } from './data/events.js';
+// Removed: import { events as initialEventsData } from './data/events.js';
 import { members as membersListData } from './data/members.js';
-import { getExceptionsByYear } from '../data/exceptionLoader.js'; // Added import
+import { getYearlyData } from './data/yearlyDataLoader.js'; // Added import
 
 const ConVoiceApp = () => {
     const [allTermine, setAllTermine] = useState([]); // Changed to manage with setAllTermine
@@ -26,19 +26,20 @@ const ConVoiceApp = () => {
     useEffect(() => {
         const loadData = async () => {
             const currentYear = new Date().getFullYear();
-            const exceptionsCurrentYear = await getExceptionsByYear(currentYear);
-            const exceptionsPreviousYear = await getExceptionsByYear(currentYear - 1);
+            const currentYearData = await getYearlyData(currentYear);
+            const previousYearData = await getYearlyData(currentYear - 1);
 
-            const combinedExceptionalDates = exceptionsCurrentYear.exceptionalDates;
+            const initialEvents = currentYearData.events; // Use events from current year's data
+            const combinedExceptionalDates = currentYearData.exceptionalDates;
             // Timespans from previous year might extend into the current year (e.g. Christmas holidays)
             const combinedExceptionalTimespans = [
-                ...exceptionsPreviousYear.exceptionalTimespans,
-                ...exceptionsCurrentYear.exceptionalTimespans
+                ...(previousYearData.exceptionalTimespans || []), // Add guard for potentially undefined timespans
+                ...(currentYearData.exceptionalTimespans || [])   // Add guard for potentially undefined timespans
             ];
             
             const data = generateSampleData(
-                initialEventsData,
-                membersListData,
+                initialEvents,
+                membersListData, // membersListData is still imported and used
                 combinedExceptionalDates,
                 combinedExceptionalTimespans
             );

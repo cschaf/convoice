@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, MapPin, Calendar } from 'lucide-react'; // Replaced Download with Calendar
+import { Clock, MapPin, Download } from 'lucide-react';
 import {
   getTerminIcon,
   getTerminColor,
@@ -41,7 +41,7 @@ const EventCard = ({
               className={`p-1.5 rounded-md hover:bg-gray-100 transition-colors duration-200 ${getTerminAccent(termin.type)} ${isPast ? 'opacity-50' : ''}`}
               title="Zu Kalender hinzufügen"
             >
-              <Calendar className="w-4 h-4" /> 
+              <Download className="w-4 h-4" />
             </button>
           </div>
           <p className="text-sm text-gray-600 mb-2">

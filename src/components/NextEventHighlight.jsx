@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, MapPin, Download } from 'lucide-react';
+import { Clock, MapPin, Calendar } from 'lucide-react'; // Replaced Download with Calendar
 import {
   getTerminIcon,
   getTerminColor,
@@ -63,7 +63,7 @@ const NextEventHighlight = ({
               className="mb-4 p-2 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 text-amber-600 hover:text-amber-700"
               title="Zu Kalender hinzufügen"
             >
-              <Download className="w-5 h-5" />
+              <Calendar className="w-5 h-5" />
             </button>
             <div className="text-2xl font-bold text-amber-600">
               {getDaysUntilTermin(nextTermin.date)} Tage

@@ -1,4 +1,4 @@
-export const generateSampleData = () => {
+export const generateSampleData = (exceptionalDates = [], exceptionalTimespans = []) => {
     const events = [
         {
             id: 'e1',
@@ -87,16 +87,21 @@ export const generateSampleData = () => {
     const eventDates = events.map(e => e.date);
 
     // Ausnahmen für Sommerferien
-    const vacationStart = new Date('2025-07-07');
-    const vacationEnd = new Date('2025-07-29');
+    exceptionalTimespans.push({ start: '2025-07-07', end: '2025-07-29' });
 
     for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
         if (date.getDay() === 2) { // Dienstag
             const dateStr = date.toISOString().split('T')[0];
-            const isVacation = date >= vacationStart && date <= vacationEnd;
             const hasEvent = eventDates.includes(dateStr);
+            const isExceptionalDate = exceptionalDates.includes(dateStr);
+            const inExceptionalTimespan = exceptionalTimespans.some(timespan => {
+                const currentDate = new Date(dateStr);
+                const timespanStart = new Date(timespan.start);
+                const timespanEnd = new Date(timespan.end);
+                return currentDate >= timespanStart && currentDate <= timespanEnd;
+            });
 
-            if (!hasEvent && !isVacation) {
+            if (!hasEvent && !isExceptionalDate && !inExceptionalTimespan) {
                 chorproben.push({
                     id: `p${dateStr}`,
                     title: 'Chorprobe',

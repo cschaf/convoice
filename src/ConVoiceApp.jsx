@@ -17,7 +17,9 @@ const ConVoiceApp = () => {
     // Beispiel-Daten für Chormitglieder und Events was removed from here.
     // It's now imported from ../data/sampleData.js
 
-    const [allTermine] = useState(generateSampleData());
+    const exampleExceptionalDates = ['2025-03-18'];
+    const exampleExceptionalTimespans = [{ start: '2025-08-01', end: '2025-08-15' }];
+    const [allTermine] = useState(generateSampleData(exampleExceptionalDates, exampleExceptionalTimespans));
 
     // Gefilterte Termine
     const filteredTermine = useMemo(() => {

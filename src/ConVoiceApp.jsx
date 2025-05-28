@@ -4,8 +4,8 @@ import Header from './components/Header';
 import FilterSidebar from './components/FilterSidebar';
 import EventCard from './components/EventCard';
 import NextEventHighlight from './components/NextEventHighlight';
-import { downloadICS } from '../utils/icsHelper';
-import { generateSampleData } from '../data/sampleData'; // Import generateSampleData
+import { downloadICS } from './utils/icsHelper';
+import { generateSampleData } from './data/sampleData'; // Import generateSampleData
 
 const ConVoiceApp = () => {
     const [searchTerm, setSearchTerm] = useState('');

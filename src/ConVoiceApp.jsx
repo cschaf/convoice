@@ -8,8 +8,10 @@ import { downloadICS } from './utils/icsHelper';
 import { generateSampleData } from './data/sampleData'; // Import generateSampleData
 import { events as initialEventsData } from './data/events.js';
 import { members as membersListData } from './data/members.js';
+import { getExceptionsByYear } from '../data/exceptionLoader.js'; // Added import
 
 const ConVoiceApp = () => {
+    const [allTermine, setAllTermine] = useState([]); // Changed to manage with setAllTermine
     const [searchTerm, setSearchTerm] = useState('');
     const [yearFilter, setYearFilter] = useState('all');
     const [typeFilter, setTypeFilter] = useState('all');
@@ -19,15 +21,32 @@ const ConVoiceApp = () => {
     // Beispiel-Daten für Chormitglieder und Events was removed from here.
     // It's now imported from ../data/sampleData.js
 
-    const exampleExceptionalDates = ['2025-01-28', '2025-04-22', '2025-08-19'];
+    // Removed hardcoded exampleExceptionalDates, sommerferien, herbstferien, weihnachtsferien, and exampleExceptionalTimespans
 
-    // Add default Sommerferien to the provided exceptionalTimespans
-    const sommerferien = { start: '2025-07-07', end: '2025-07-29' };
-    const herbstferien = { start: '2025-10-13', end: '2025-10-25' };
-    const weihnachtsferien = { start: '2025-12-22', end: '2026-01-05' };
+    useEffect(() => {
+        const loadData = async () => {
+            const currentYear = new Date().getFullYear();
+            const exceptionsCurrentYear = await getExceptionsByYear(currentYear);
+            const exceptionsPreviousYear = await getExceptionsByYear(currentYear - 1);
 
-    const exampleExceptionalTimespans = [sommerferien, herbstferien,weihnachtsferien];
-    const [allTermine] = useState(generateSampleData(initialEventsData, membersListData, exampleExceptionalDates, exampleExceptionalTimespans));
+            const combinedExceptionalDates = exceptionsCurrentYear.exceptionalDates;
+            // Timespans from previous year might extend into the current year (e.g. Christmas holidays)
+            const combinedExceptionalTimespans = [
+                ...exceptionsPreviousYear.exceptionalTimespans,
+                ...exceptionsCurrentYear.exceptionalTimespans
+            ];
+            
+            const data = generateSampleData(
+                initialEventsData,
+                membersListData,
+                combinedExceptionalDates,
+                combinedExceptionalTimespans
+            );
+            setAllTermine(data);
+        };
+
+        loadData();
+    }, []); // Empty dependency array ensures this runs once on mount
 
     // Gefilterte Termine
     const filteredTermine = useMemo(() => {

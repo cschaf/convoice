@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { generateSampleData } from './sampleData.js';
-import { events as initialEventsData } from './events.js';
+// import { events as initialEventsData } from './events.js'; // events.js is deleted
 import { members as membersListData } from './members.js';
 
 // Helper function to format a Date object to 'YYYY-MM-DD'
@@ -32,9 +32,9 @@ const getNthTuesdayOfMonth = (year, month, n) => {
             }
         }
         date.setDate(date.getDate() + 1);
-        if (date.getMonth() !== month && count < n) return null; // Month ended before finding Nth Tuesday
+        if (date.getMonth() !== month && count < n) return null;
     }
-    return null; // Should not happen if month is valid and n is reasonable
+    return null;
 };
 
 // Helper function to add days to a date
@@ -62,15 +62,15 @@ const countTuesdaysInRange = (startDate, endDate) => {
 
 describe('generateSampleData', () => {
     const currentYear = new Date().getFullYear();
+    const mockInitialEvents = []; // Use empty array as events.js was deleted
 
     it('Test Case 1: should skip exceptional dates for choir rehearsals', () => {
-        // Find the first Tuesday of March in the current year
-        const firstTuesdayOfMarch = getNthTuesdayOfMonth(currentYear, 2, 1); // Month is 0-indexed, so 2 is March
+        const firstTuesdayOfMarch = getNthTuesdayOfMonth(currentYear, 2, 1);
         expect(firstTuesdayOfMarch).not.toBeNull();
         const exceptionalDateStr = formatDate(firstTuesdayOfMarch);
 
         const exceptionalDates = [exceptionalDateStr];
-        const data = generateSampleData(initialEventsData, membersListData, exceptionalDates, []);
+        const data = generateSampleData(mockInitialEvents, membersListData, exceptionalDates, [], currentYear);
         const skippedRehearsal = data.find(item => item.type === 'chorprobe' && item.date === exceptionalDateStr);
         expect(skippedRehearsal).toBeUndefined();
 
@@ -82,21 +82,18 @@ describe('generateSampleData', () => {
     });
 
     it('Test Case 2: should skip exceptional timespans for choir rehearsals', () => {
-        // Use the first Tuesday of April and a 9-day span
-        const firstTuesdayOfApril = getNthTuesdayOfMonth(currentYear, 3, 1); // 3 is April
+        const firstTuesdayOfApril = getNthTuesdayOfMonth(currentYear, 3, 1);
         expect(firstTuesdayOfApril).not.toBeNull();
         const timespanStartStr = formatDate(firstTuesdayOfApril);
         const timespanEnd = addDays(firstTuesdayOfApril, 9);
         const timespanEndStr = formatDate(timespanEnd);
 
         const exceptionalTimespans = [{ start: timespanStartStr, end: timespanEndStr }];
-        const data = generateSampleData(initialEventsData, membersListData, [], exceptionalTimespans);
+        const data = generateSampleData(mockInitialEvents, membersListData, [], exceptionalTimespans, currentYear);
 
-        // This specific Tuesday should be skipped
         const skippedRehearsal1 = data.find(item => item.type === 'chorprobe' && item.date === timespanStartStr);
         expect(skippedRehearsal1).toBeUndefined();
 
-        // The Tuesday after timespanStartStr (firstTuesdayOfApril + 7 days) should also be skipped if within the timespan
         const secondTuesdayInTimespanAttempt = addDays(firstTuesdayOfApril, 7);
         if (secondTuesdayInTimespanAttempt <= timespanEnd) {
             const skippedRehearsal2DateStr = formatDate(secondTuesdayInTimespanAttempt);
@@ -104,9 +101,8 @@ describe('generateSampleData', () => {
             expect(skippedRehearsal2).toBeUndefined();
         }
 
-        // The first Tuesday after the timespan ends
         let nextTuesdayAfterTimespan = new Date(timespanEnd);
-        nextTuesdayAfterTimespan.setDate(nextTuesdayAfterTimespan.getDate() + 1); // Start checking from day after timespan end
+        nextTuesdayAfterTimespan.setDate(nextTuesdayAfterTimespan.getDate() + 1);
         while (nextTuesdayAfterTimespan.getDay() !== 2) {
             nextTuesdayAfterTimespan.setDate(nextTuesdayAfterTimespan.getDate() + 1);
         }
@@ -117,7 +113,7 @@ describe('generateSampleData', () => {
     });
 
     it('Test Case 3: should generate choir rehearsals by default (no exceptions)', () => {
-        const data = generateSampleData(initialEventsData, membersListData);
+        const data = generateSampleData(mockInitialEvents, membersListData, [], [], currentYear);
         const firstTuesdayOfYearDate = getFirstTuesdayOfYear(currentYear);
         const firstTuesdayDateStr = formatDate(firstTuesdayOfYearDate);
         const firstTuesdayRehearsal = data.find(item => item.type === 'chorprobe' && item.date === firstTuesdayDateStr);
@@ -125,48 +121,33 @@ describe('generateSampleData', () => {
         expect(firstTuesdayRehearsal.title).toBe('Chorprobe');
     });
 
-    it('Test Case 4: should skip default Sommerferien timespan', () => {
-        // Sommerferien is defined as YYYY-07-07 to YYYY-07-29 in comments, let's use that.
-        // Note: The actual implementation of generateSampleData doesn't have a "default" Sommerferien.
-        // It relies on exceptionalTimespans being passed. This test might be testing an implicit behavior
-        // or a behavior that was removed. For now, I will assume the test implies that *if* such a timespan
-        // were provided, it would be skipped. The original test passed an empty array for exceptionalTimespans.
-        // The original `generateSampleData` also didn't have a hardcoded Sommerferien.
-        // This test seems to be misinterpreting the `generateSampleData` capabilities or was written for a previous version.
-        //
-        // The important part of generateSampleData is that it *can* skip timespans if they are provided.
-        // Let's redefine this test to check *if* a Sommerferien timespan is provided, it's skipped.
+    it('Test Case 4: should skip a defined Sommerferien timespan', () => {
         const sommerferienStart = new Date(currentYear, 6, 7); // July 7th
         const sommerferienEnd = new Date(currentYear, 6, 29); // July 29th
         const sommerferienTimespan = [{ start: formatDate(sommerferienStart), end: formatDate(sommerferienEnd) }];
         
-        const data = generateSampleData(initialEventsData, membersListData, [], sommerferienTimespan);
+        const data = generateSampleData(mockInitialEvents, membersListData, [], sommerferienTimespan, currentYear);
 
-        // Find Tuesdays within this range and assert they are skipped
         let currentTestDate = new Date(sommerferienStart);
         while (currentTestDate <= sommerferienEnd) {
-            if (currentTestDate.getDay() === 2) { // If it's a Tuesday
+            if (currentTestDate.getDay() === 2) {
                 const dateStr = formatDate(currentTestDate);
                 const skippedRehearsal = data.find(item => item.type === 'chorprobe' && item.date === dateStr);
-                expect(skippedRehearsal, `Rehearsal on ${dateStr} should be skipped during Sommerferien`).toBeUndefined();
+                expect(skippedRehearsal, `Rehearsal on ${dateStr} should be skipped`).toBeUndefined();
             }
             currentTestDate.setDate(currentTestDate.getDate() + 1);
         }
 
-        // Check for rehearsals before and after the vacation period
-        // First Tuesday of July (or last of June if July 1st is after Sommerferien start for some reason)
-        const firstTuesdayOfJuly = getNthTuesdayOfMonth(currentYear, 6, 1); // July
+        const firstTuesdayOfJuly = getNthTuesdayOfMonth(currentYear, 6, 1);
         expect(firstTuesdayOfJuly).not.toBeNull();
-
-        if (firstTuesdayOfJuly < sommerferienStart) { // Only if it's before the vacation
+        if (firstTuesdayOfJuly < sommerferienStart) {
             const rehearsalBeforeDateStr = formatDate(firstTuesdayOfJuly);
             const rehearsalBeforeVacation = data.find(item => item.type === 'chorprobe' && item.date === rehearsalBeforeDateStr);
             expect(rehearsalBeforeVacation, `Rehearsal on ${rehearsalBeforeDateStr} should exist`).toBeDefined();
         }
 
-
         let firstTuesdayAfterSommerferien = new Date(sommerferienEnd);
-        firstTuesdayAfterSommerferien.setDate(firstTuesdayAfterSommerferien.getDate() + 1); // day after
+        firstTuesdayAfterSommerferien.setDate(firstTuesdayAfterSommerferien.getDate() + 1);
         while(firstTuesdayAfterSommerferien.getDay() !== 2) {
             firstTuesdayAfterSommerferien.setDate(firstTuesdayAfterSommerferien.getDate() + 1);
         }
@@ -176,19 +157,15 @@ describe('generateSampleData', () => {
     });
 
     describe('DST and Date Generation Logic Tests', () => {
-        const allGeneratedData = generateSampleData(initialEventsData, membersListData, [], []);
+        // For these tests, allGeneratedData needs to be generated for currentYear
+        // And the specific dates need to be calculated for currentYear.
+        const allGeneratedData = generateSampleData(mockInitialEvents, membersListData, [], [], currentYear);
         const allChoirProben = allGeneratedData.filter(item => item.type === 'chorprobe');
 
         it('Test Case 5: Consistent Tuesday Generation Across DST', () => {
-            // DST in Europe typically starts last Sunday of March and ends last Sunday of October.
-            // We need Tuesdays around these dates.
-            // Last Tuesday of March
-            const lastTuesdayMar = getNthTuesdayOfMonth(currentYear, 2, 4) || getNthTuesdayOfMonth(currentYear, 2, 5); // March can have 4 or 5 Tuesdays
-            // First Tuesday of April
+            const lastTuesdayMar = getNthTuesdayOfMonth(currentYear, 2, 4) || getNthTuesdayOfMonth(currentYear, 2, 5);
             const firstTuesdayApr = getNthTuesdayOfMonth(currentYear, 3, 1);
-            // Last Tuesday of October
-            const lastTuesdayOct = getNthTuesdayOfMonth(currentYear, 9, 4) || getNthTuesdayOfMonth(currentYear, 9, 5); // October can have 4 or 5 Tuesdays
-            // First Tuesday of November
+            const lastTuesdayOct = getNthTuesdayOfMonth(currentYear, 9, 4) || getNthTuesdayOfMonth(currentYear, 9, 5);
             const firstTuesdayNov = getNthTuesdayOfMonth(currentYear, 10, 1);
 
             const dstTestDates = [
@@ -196,55 +173,41 @@ describe('generateSampleData', () => {
                 firstTuesdayApr ? formatDate(firstTuesdayApr) : null,
                 lastTuesdayOct ? formatDate(lastTuesdayOct) : null,
                 firstTuesdayNov ? formatDate(firstTuesdayNov) : null,
-            ].filter(Boolean); // Remove nulls if a month didn't have that many Tuesdays (e.g. 5th)
+            ].filter(Boolean);
 
-            expect(dstTestDates.length).toBeGreaterThanOrEqual(2); // Ensure we have some dates to test
+            expect(dstTestDates.length).toBeGreaterThanOrEqual(2);
 
             dstTestDates.forEach(dateStr => {
                 const rehearsal = allChoirProben.find(item => item.date === dateStr);
                 expect(rehearsal, `Rehearsal on ${dateStr} (around DST) should be defined`).toBeDefined();
-                if (rehearsal) {
-                    expect(rehearsal.title).toBe('Chorprobe');
-                }
+                if (rehearsal) expect(rehearsal.title).toBe('Chorprobe');
             });
         });
 
         it('Test Case 6: No rehearsals on other days (spot check)', () => {
-            // Find the first Monday of March
             const date = new Date(currentYear, 2, 1); // March 1st
-            while (date.getDay() !== 1) { // 1 for Monday
-                date.setDate(date.getDate() + 1);
-            }
+            while (date.getDay() !== 1) { date.setDate(date.getDate() + 1); } // Find first Monday of March
             const notATuesdayStr = formatDate(date);
             const rehearsal = allChoirProben.find(item => item.date === notATuesdayStr);
             expect(rehearsal).toBeUndefined();
         });
 
-        it('Test Case 7: Reasonable number of rehearsals in currentYear', () => {
-            // Count all Tuesdays in the current year
+        it(`Test Case 7: Reasonable number of rehearsals in ${currentYear}`, () => {
             let tuesdaysInYear = 0;
             const date = new Date(currentYear, 0, 1);
             while (date.getFullYear() === currentYear) {
-                if (date.getDay() === 2) { // Tuesday
-                    tuesdaysInYear++;
-                }
+                if (date.getDay() === 2) tuesdaysInYear++;
                 date.setDate(date.getDate() + 1);
             }
             
-            // Define Sommerferien for current year (July 7th to July 29th, inclusive)
-            // This timespan is from the original test's comment.
-            // The actual generateSampleData doesn't know about "Sommerferien" unless passed in.
-            // For this test, we simulate this exceptional timespan.
             const sommerferienStart = new Date(currentYear, 6, 7); // July 7th
             const sommerferienEnd = new Date(currentYear, 6, 29); // July 29th
             
-            // We need to generate data with this specific Sommerferien to test the count
             const sommerferienTimespan = [{ start: formatDate(sommerferienStart), end: formatDate(sommerferienEnd) }];
-            const dataWithSommerferien = generateSampleData(initialEventsData, membersListData, [], sommerferienTimespan);
+            // Generate data specifically for this test's scenario
+            const dataWithSommerferien = generateSampleData(mockInitialEvents, membersListData, [], sommerferienTimespan, currentYear);
             const choirProbenWithSommerferien = dataWithSommerferien.filter(item => item.type === 'chorprobe');
 
-            // initialEventsData does not have any events on Tuesdays (as per original test comment).
-            // We assume no exceptionalDates are passed for this specific count test, other than the Sommerferien.
             const expectedRehearsals = tuesdaysInYear - countTuesdaysInRange(sommerferienStart, sommerferienEnd);
             
             expect(choirProbenWithSommerferien.length).toBe(expectedRehearsals);

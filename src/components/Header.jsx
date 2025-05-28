@@ -1,9 +1,9 @@
 import React from 'react';
-import { Music, Menu, Search } from 'lucide-react';
+import { Music, Menu, Search, Sun, Moon } from 'lucide-react'; // Added Sun and Moon
 
-const Header = ({ searchTerm, setSearchTerm, mobileFiltersOpen, setMobileFiltersOpen }) => {
+const Header = ({ searchTerm, setSearchTerm, mobileFiltersOpen, setMobileFiltersOpen, theme, setTheme }) => { // Added theme and setTheme props
   return (
-    <header className="bg-white shadow-lg border-b-4 border-amber-400">
+    <header className="bg-white shadow-lg border-b-4 border-amber-400 dark:bg-gray-800 dark:border-amber-600"> {/* Added dark mode styles */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4">
@@ -11,28 +11,37 @@ const Header = ({ searchTerm, setSearchTerm, mobileFiltersOpen, setMobileFilters
               <Music className="w-8 h-8 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">ConVoice</h1>
-              <p className="text-gray-600">Gospel Chor Bremen</p>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">ConVoice</h1> {/* Added dark mode styles */}
+              <p className="text-gray-600 dark:text-gray-300">Gospel Chor Bremen</p> {/* Added dark mode styles */}
             </div>
           </div>
 
-          <button
-            onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
-            className="lg:hidden p-2 rounded-lg bg-gray-100 hover:bg-gray-200"
-          >
-            <Menu className="w-6 h-6" />
-          </button>
+          <div className="flex items-center space-x-2"> {/* Container for theme toggle and menu button */}
+            <button
+              onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+              className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors"
+              title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+            >
+              {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+            </button>
+            <button
+              onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
+              className="lg:hidden p-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600" // Added dark mode styles
+            >
+              <Menu className="w-6 h-6 text-gray-600 dark:text-gray-300" /> {/* Added dark mode styles */}
+            </button>
+          </div>
         </div>
 
         {/* Suchleiste */}
         <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" /> {/* Added dark mode styles */}
           <input
             type="text"
             placeholder="Termine durchsuchen..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400" // Added dark mode styles
           />
         </div>
       </div>

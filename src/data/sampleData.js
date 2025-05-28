@@ -1,10 +1,10 @@
-export const generateSampleData = (initialEvents = [], membersData = [], exceptionalDates = [], exceptionalTimespans = []) => {
-    const currentYear = new Date().getFullYear(); // Get current year
+export const generateSampleData = (initialEvents = [], membersData = [], exceptionalDates = [], exceptionalTimespans = [], targetYear) => {
+    const yearToProcess = targetYear || new Date().getFullYear();
 
     const birthdays = membersData.map((member, index) => ({
         id: `b${index + 1}`,
         title: `Geburtstag ${member.name}`,
-        date: `${currentYear}-${member.birthday.slice(5)}`, // Use current year
+        date: `${yearToProcess}-${member.birthday.slice(5)}`, // Use yearToProcess
         type: 'geburtstag',
         memberName: member.name,
         description: `🎉 ${member.name} hat Geburtstag!`
@@ -12,15 +12,15 @@ export const generateSampleData = (initialEvents = [], membersData = [], excepti
 
     // Chorproben generieren (jeden Dienstag, außer bei Event-Konflikten)
     const chorproben = [];
-    const endDate = new Date(currentYear, 11, 31); // December 31st of current year
+    const endDate = new Date(yearToProcess, 11, 31); // Use yearToProcess, December 31st
     const eventDates = initialEvents.map(e => e.date);
 
-    // Calculate the first Tuesday of the current year
-    let currentDate = new Date(currentYear, 0, 1, 19, 0, 0); // Start with Jan 1st, 19:00 of current year
+    // Calculate the first Tuesday of the yearToProcess
+    let currentDate = new Date(yearToProcess, 0, 1, 19, 0, 0); // Start with Jan 1st, 19:00 of yearToProcess
     while (currentDate.getDay() !== 2) { // 0 = Sunday, 1 = Monday, 2 = Tuesday
         currentDate.setDate(currentDate.getDate() + 1);
     }
-    // Now currentDate is the first Tuesday of currentYear at 19:00
+    // Now currentDate is the first Tuesday of yearToProcess at 19:00
 
     const lastDateOfYear = new Date(endDate.getFullYear(), 11, 31); // December 31st of the target year
 

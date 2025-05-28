@@ -1,10 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import { generateSampleData } from './sampleData.js';
+import { events as initialEventsData } from './events.js';
+import { members as membersListData } from './members.js';
 
 describe('generateSampleData', () => {
     it('Test Case 1: should skip exceptional dates for choir rehearsals', () => {
         const exceptionalDates = ['2025-03-11']; // Assuming this is a Tuesday
-        const data = generateSampleData(exceptionalDates, []);
+        const data = generateSampleData(initialEventsData, membersListData, exceptionalDates, []);
         const skippedRehearsal = data.find(item => item.type === 'chorprobe' && item.date === '2025-03-11');
         expect(skippedRehearsal).toBeUndefined();
 
@@ -15,7 +17,7 @@ describe('generateSampleData', () => {
 
     it('Test Case 2: should skip exceptional timespans for choir rehearsals', () => {
         const exceptionalTimespans = [{ start: '2025-04-01', end: '2025-04-10' }];
-        const data = generateSampleData([], exceptionalTimespans);
+        const data = generateSampleData(initialEventsData, membersListData, [], exceptionalTimespans);
 
         const skippedRehearsal1 = data.find(item => item.type === 'chorprobe' && item.date === '2025-04-01');
         expect(skippedRehearsal1).toBeUndefined();
@@ -28,14 +30,14 @@ describe('generateSampleData', () => {
     });
 
     it('Test Case 3: should generate choir rehearsals by default (no exceptions)', () => {
-        const data = generateSampleData();
+        const data = generateSampleData(initialEventsData, membersListData);
         const firstTuesdayRehearsal = data.find(item => item.type === 'chorprobe' && item.date === '2025-01-07');
         expect(firstTuesdayRehearsal).toBeDefined();
         expect(firstTuesdayRehearsal.title).toBe('Chorprobe');
     });
 
     it('Test Case 4: should skip default Sommerferien timespan', () => {
-        const data = generateSampleData(); // Sommerferien '2025-07-07' to '2025-07-29'
+        const data = generateSampleData(initialEventsData, membersListData); // Sommerferien '2025-07-07' to '2025-07-29'
 
         // Check for rehearsals within the default vacation period
         const skippedRehearsalJuly8 = data.find(item => item.type === 'chorprobe' && item.date === '2025-07-08');

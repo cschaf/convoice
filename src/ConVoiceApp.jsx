@@ -6,6 +6,8 @@ import EventCard from './components/EventCard';
 import NextEventHighlight from './components/NextEventHighlight';
 import { downloadICS } from './utils/icsHelper';
 import { generateSampleData } from './data/sampleData'; // Import generateSampleData
+import { events as initialEventsData } from './data/events.js';
+import { members as membersListData } from './data/members.js';
 
 const ConVoiceApp = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -19,7 +21,7 @@ const ConVoiceApp = () => {
 
     const exampleExceptionalDates = ['2025-03-18'];
     const exampleExceptionalTimespans = [{ start: '2025-08-01', end: '2025-08-15' }];
-    const [allTermine] = useState(generateSampleData(exampleExceptionalDates, exampleExceptionalTimespans));
+    const [allTermine] = useState(generateSampleData(initialEventsData, membersListData, exampleExceptionalDates, exampleExceptionalTimespans));
 
     // Gefilterte Termine
     const filteredTermine = useMemo(() => {

@@ -11,43 +11,70 @@ import { members as membersListData } from './data/members.js';
 import { getYearlyData } from './data/yearlyDataLoader.js'; // Added import
 
 const ConVoiceApp = () => {
-    const [allTermine, setAllTermine] = useState([]); // Changed to manage with setAllTermine
+    const [allTermine, setAllTermine] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [yearFilter, setYearFilter] = useState('all');
+    const [selectedYear, setSelectedYear] = useState(null); // Renamed from yearFilter, initialized to null
+    const [availableYears, setAvailableYears] = useState([]); // New state for available years
     const [typeFilter, setTypeFilter] = useState('all');
     const [timeFilter, setTimeFilter] = useState('upcoming');
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
-    // Beispiel-Daten für Chormitglieder und Events was removed from here.
-    // It's now imported from ../data/sampleData.js
-
-    // Removed hardcoded exampleExceptionalDates, sommerferien, herbstferien, weihnachtsferien, and exampleExceptionalTimespans
-
+    // useEffect to load config and set initial selectedYear
     useEffect(() => {
-        const loadData = async () => {
-            const currentYear = new Date().getFullYear();
-            const currentYearData = await getYearlyData(currentYear);
-            const previousYearData = await getYearlyData(currentYear - 1);
+        const loadAppConfig = async () => {
+            try {
+                const response = await fetch('/data/config.json'); // Assuming config.json is in src/data/
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const config = await response.json();
+                setAvailableYears(config.availableYears);
 
-            const initialEvents = currentYearData.events; // Use events from current year's data
+                const actualCurrentYear = new Date().getFullYear();
+                if (config.availableYears.includes(actualCurrentYear)) {
+                    setSelectedYear(actualCurrentYear);
+                } else if (config.availableYears.length > 0) {
+                    setSelectedYear(config.availableYears[0]); // Default to the first available year
+                } else {
+                    setSelectedYear(actualCurrentYear); // Fallback to actual current year
+                }
+            } catch (error) {
+                console.error("Failed to load app config:", error);
+                // Fallback in case config loading fails
+                setAvailableYears([new Date().getFullYear()]);
+                setSelectedYear(new Date().getFullYear());
+            }
+        };
+        loadAppConfig();
+    }, []); // Runs once on mount
+
+    // useEffect to load data based on selectedYear
+    useEffect(() => {
+        if (!selectedYear) return; // Don't load data if no year is selected
+
+        const loadData = async () => {
+            const currentYearData = await getYearlyData(selectedYear);
+            const previousYearData = await getYearlyData(selectedYear - 1);
+
+            const initialEvents = currentYearData.events;
             const combinedExceptionalDates = currentYearData.exceptionalDates;
-            // Timespans from previous year might extend into the current year (e.g. Christmas holidays)
             const combinedExceptionalTimespans = [
-                ...(previousYearData.exceptionalTimespans || []), // Add guard for potentially undefined timespans
-                ...(currentYearData.exceptionalTimespans || [])   // Add guard for potentially undefined timespans
+                ...(previousYearData.exceptionalTimespans || []),
+                ...(currentYearData.exceptionalTimespans || [])
             ];
             
             const data = generateSampleData(
                 initialEvents,
-                membersListData, // membersListData is still imported and used
+                membersListData,
                 combinedExceptionalDates,
-                combinedExceptionalTimespans
+                combinedExceptionalTimespans,
+                selectedYear // Pass selectedYear as targetYear
             );
             setAllTermine(data);
         };
 
         loadData();
-    }, []); // Empty dependency array ensures this runs once on mount
+    }, [selectedYear]); // Runs when selectedYear changes
 
     // Gefilterte Termine
     const filteredTermine = useMemo(() => {
@@ -61,8 +88,8 @@ const ConVoiceApp = () => {
                 return false;
             }
 
-            // Jahresfilter
-            if (yearFilter !== 'all' && !termin.date.startsWith(yearFilter)) {
+            // Jahresfilter - uses selectedYear directly as it's a number, not 'all'
+            if (selectedYear && !termin.date.startsWith(selectedYear.toString())) {
                 return false;
             }
 
@@ -78,7 +105,7 @@ const ConVoiceApp = () => {
 
             return true;
         });
-    }, [allTermine, searchTerm, yearFilter, typeFilter, timeFilter]);
+    }, [allTermine, searchTerm, selectedYear, typeFilter, timeFilter]); // Updated dependency to selectedYear
 
     // Nächster Termin
     const nextTermin = useMemo(() => {
@@ -88,14 +115,7 @@ const ConVoiceApp = () => {
         return allTermine.find(termin => termin.date >= today);
     }, [allTermine]);
 
-    // Verfügbare Jahre
-    const availableYears = useMemo(() => {
-        const years = [...new Set(allTermine.map(t => t.date.substring(0, 4)))];
-        return years.sort();
-    }, [allTermine]);
-
-    // ICS Kalender Download Funktion was removed from here.
-    // It's now imported from ../utils/icsHelper.js
+    // Removed old availableYears useMemo, as it's now a state loaded from config.json
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-blue-50">
@@ -111,13 +131,13 @@ const ConVoiceApp = () => {
                     <FilterSidebar
                         mobileFiltersOpen={mobileFiltersOpen}
                         setMobileFiltersOpen={setMobileFiltersOpen}
-                        yearFilter={yearFilter}
-                        setYearFilter={setYearFilter}
+                        yearFilter={selectedYear} // Changed prop name
+                        setYearFilter={setSelectedYear} // Changed prop name
                         typeFilter={typeFilter}
                         setTypeFilter={setTypeFilter}
                         timeFilter={timeFilter}
                         setTimeFilter={setTimeFilter}
-                        availableYears={availableYears}
+                        availableYears={availableYears} // Pass new state
                         filteredTermine={filteredTermine}
                     />
 

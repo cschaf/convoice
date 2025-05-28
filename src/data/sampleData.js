@@ -2,6 +2,36 @@ export const generateSampleData = () => {
     const events = [
         {
             id: 'e1',
+            title: 'Probe',
+            date: '2025-03-01',
+            startTime: '10:00',
+            endTime: '14:00',
+            type: 'event',
+            description: 'Extra Probe',
+            location: 'Huchting'
+        },
+        {
+            id: 'e2',
+            title: 'Ostergottesdienst',
+            date: '2025-04-20',
+            startTime: '06:00',
+            endTime: '07:00',
+            type: 'event',
+            description: 'Auftritt + Frühstück',
+            location: 'Huchting'
+        },
+        {
+            id: 'e3',
+            title: 'Offenes Singen',
+            date: '2025-05-18',
+            startTime: '17:00',
+            endTime: '20:00',
+            type: 'event',
+            description: 'Gemeinsames Singen',
+            location: 'Christuskirche Woltmershausen'
+        },
+        {
+            id: 'e4',
             title: 'Sommerfest Christus',
             date: '2025-06-28',
             startTime: '15:00',
@@ -11,27 +41,7 @@ export const generateSampleData = () => {
             location: 'Christus-Gemeinde'
         },
         {
-            id: 'e2',
-            title: 'Gottesdienst Huchting',
-            date: '2025-04-20',
-            startTime: '06:00',
-            endTime: '08:00',
-            type: 'event',
-            description: 'Ostersonntag Gottesdienst mit anschließendem Frühstück',
-            location: 'Huchting'
-        },
-        {
-            id: 'e3',
-            title: 'Rudelsingen Woltmershausen',
-            date: '2025-05-18',
-            startTime: '17:00',
-            endTime: '19:00',
-            type: 'event',
-            description: 'Gemeinsames Singen mit anderen Chören',
-            location: 'Woltmershausen'
-        },
-        {
-            id: 'e4',
+            id: 'e5',
             title: 'Gottesdienst mit Grillen',
             date: '2025-08-31',
             startTime: '18:00',
@@ -39,30 +49,26 @@ export const generateSampleData = () => {
             type: 'event',
             description: 'Abendgottesdienst mit anschließendem Grillen',
             location: 'Huchting'
-        },
-        {
-            id: 'e5',
-            title: 'Weihnachtskonzert',
-            date: '2025-12-15',
-            startTime: '19:00',
-            endTime: '21:00',
-            type: 'event',
-            description: 'Traditionelles Weihnachtskonzert der ConVoice',
-            location: 'Stadthalle Bremen'
         }
+
     ];
 
     const members = [
-        { name: 'Manuela', birthday: '1984-01-15' },
-        { name: 'Thomas', birthday: '1978-03-22' },
-        { name: 'Sarah', birthday: '1990-07-08' },
-        { name: 'Michael', birthday: '1985-11-12' },
-        { name: 'Anna', birthday: '1992-05-28' },
-        { name: 'David', birthday: '1987-09-14' },
-        { name: 'Lisa', birthday: '1989-02-03' },
-        { name: 'Mark', birthday: '1983-10-30' },
-        { name: 'Julia', birthday: '1991-06-17' },
-        { name: 'Stefan', birthday: '1979-12-05' }
+        { name: 'Manuela', birthday: '1900-10-10' },
+        { name: 'Christian', birthday: '1990-11-25' },
+        { name: 'Petra', birthday: '1900-02-17' },
+        { name: 'Sonja', birthday: '1900-03-19' },
+        { name: 'Helga', birthday: '1900-05-25' },
+        { name: 'Jutta', birthday: '1900-09-14' },
+        { name: 'Heike', birthday: '1900-07-18' },
+        { name: 'Bobby', birthday: '1900-06-03' },
+        { name: 'Christa', birthday: '1900-06-17' },
+        { name: 'Astrid', birthday: '1900-07-18' },
+        { name: 'Rita', birthday: '1900-09-02' },
+        { name: 'Elisabeth', birthday: '1900-06-19' },
+        { name: 'Udo', birthday: '1900-07-30' },
+        { name: 'Ingo', birthday: '1900-11-08' },
+        { name: 'Monika', birthday: '1900-09-15' }
     ];
 
     const birthdays = members.map((member, index) => ({

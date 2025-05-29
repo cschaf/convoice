@@ -187,9 +187,10 @@ const ConVoiceApp = () => {
             <ScrollToTopButton /> {/* Placed here to be part of the app shell */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="flex flex-col lg:flex-row gap-8">
-                    <FilterSidebar
-                        mobileFiltersOpen={mobileFiltersOpen}
-                        setMobileFiltersOpen={setMobileFiltersOpen}
+                    {!showDataEntryPage && (
+                        <FilterSidebar
+                            mobileFiltersOpen={mobileFiltersOpen}
+                            setMobileFiltersOpen={setMobileFiltersOpen}
                         yearFilter={selectedYear} // Changed prop name
                         setYearFilter={setSelectedYear} // Changed prop name
                         typeFilter={typeFilter}
@@ -198,7 +199,8 @@ const ConVoiceApp = () => {
                         setTimeFilter={setTimeFilter}
                         availableYears={availableYears} // Pass new state
                         filteredTermine={filteredTermine}
-                    />
+                        />
+                    )}
 
                     {/* Hauptinhalt */}
                     <div className="flex-1">

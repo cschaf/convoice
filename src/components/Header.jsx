@@ -1,5 +1,5 @@
 import React from 'react';
-import { Music, Menu, Search, Sun, Moon, FilePlus } from 'lucide-react';
+import { Music, Menu, Search, Sun, Moon, FilePlus, Calendar } from 'lucide-react';
 
 const Header = ({
   searchTerm,
@@ -32,7 +32,7 @@ const Header = ({
                 className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors flex items-center space-x-2"
                 title={isDataEntryPageActive ? "Zurück zur Kalenderansicht" : "Jahresdaten hinzufügen/bearbeiten"}
               >
-                <FilePlus className="w-5 h-5" />
+                {isDataEntryPageActive ? <Calendar className="w-5 h-5" /> : <FilePlus className="w-5 h-5" />}
                 <span className="hidden sm:inline">{isDataEntryPageActive ? "Kalender" : "Daten verwalten"}</span>
               </button>
             )}

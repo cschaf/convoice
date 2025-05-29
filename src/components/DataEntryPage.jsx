@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, Trash2, ChevronDown, ChevronRight, Info } from 'lucide-react';
+import ScrollToTopButton from './ScrollToTopButton'; // Import the ScrollToTopButton
 
 const generateEventId = () => `evt-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
 
@@ -286,6 +287,7 @@ const DataEntryPage = () => {
           </div>
         </div>
       </div>
+      <ScrollToTopButton /> {/* Add the button here */}
     </div>
   );
 };

@@ -4,7 +4,8 @@ import Header from './components/Header';
 import FilterSidebar from './components/FilterSidebar';
 import EventCard from './components/EventCard';
 import NextEventHighlight from './components/NextEventHighlight';
-import DataEntryPage from './components/DataEntryPage'; // Import DataEntryPage
+import DataEntryPage from './components/DataEntryPage';
+import ScrollToTopButton from './components/ScrollToTopButton'; // Import ScrollToTopButton
 import { downloadICS } from './utils/icsHelper';
 import { generateSampleData } from './data/sampleData';
 import { members as membersListData } from './data/members.js';
@@ -20,9 +21,8 @@ const ConVoiceApp = () => {
     const [typeFilter, setTypeFilter] = useState('all');
     const [timeFilter, setTimeFilter] = useState('upcoming');
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-    const [showDataEntryPage, setShowDataEntryPage] = useState(false); // New state for DataEntryPage
+    const [showDataEntryPage, setShowDataEntryPage] = useState(false);
 
-    // Function to toggle DataEntryPage visibility
     const handleToggleDataEntryPage = () => {
         setShowDataEntryPage(prev => !prev);
     };
@@ -55,7 +55,7 @@ const ConVoiceApp = () => {
     }, [theme]);
 
     useEffect(() => {
-        if (!selectedYear || showDataEntryPage) return; // Don't load data if no year or if on DataEntryPage
+        if (!selectedYear || showDataEntryPage) return;
 
         const loadData = async () => {
             const currentYearData = await getYearlyData(selectedYear);
@@ -76,10 +76,10 @@ const ConVoiceApp = () => {
             setAllTermine(data);
         };
         loadData();
-    }, [selectedYear, showDataEntryPage]); // Added showDataEntryPage to dependencies
+    }, [selectedYear, showDataEntryPage]);
 
     const filteredTermine = useMemo(() => {
-        if (showDataEntryPage) return []; // No need to filter if on DataEntryPage
+        if (showDataEntryPage) return [];
         const now = new Date();
         const today = now.toISOString().split('T')[0];
         return allTermine.filter(termin => {
@@ -98,30 +98,33 @@ const ConVoiceApp = () => {
             }
             return true;
         });
-    }, [allTermine, searchTerm, selectedYear, typeFilter, timeFilter, showDataEntryPage]); // Added showDataEntryPage
+    }, [allTermine, searchTerm, selectedYear, typeFilter, timeFilter, showDataEntryPage]);
 
     const nextTermin = useMemo(() => {
-        if (showDataEntryPage) return null; // No next termin if on DataEntryPage
+        if (showDataEntryPage) return null;
         const now = new Date();
         const today = now.toISOString().split('T')[0];
         return allTermine.find(termin => termin.date >= today);
-    }, [allTermine, showDataEntryPage]); // Added showDataEntryPage
+    }, [allTermine, showDataEntryPage]);
 
-    // If showDataEntryPage is true, render only DataEntryPage
-    if (showDataEntryPage) {
-        return (
-            <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-gray-900 p-4">
-                <Header
-                    searchTerm={searchTerm} 
-                    setSearchTerm={setSearchTerm}
-                    mobileFiltersOpen={mobileFiltersOpen} 
-                    setMobileFiltersOpen={setMobileFiltersOpen}
-                    theme={theme}
-                    setTheme={setTheme}
-                    onToggleDataEntryPage={handleToggleDataEntryPage} 
-                    isDataEntryPageActive={true} 
-                />
-                 <div className="max-w-4xl mx-auto mt-8 p-6 bg-white dark:bg-gray-800 shadow-xl rounded-lg">
+    // Main render logic
+    // The ScrollToTopButton is placed outside the conditional rendering of views
+    // but inside the main app container so it has access to the app's scroll context.
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-gray-900">
+            <Header
+                searchTerm={searchTerm} 
+                setSearchTerm={setSearchTerm}
+                mobileFiltersOpen={mobileFiltersOpen} 
+                setMobileFiltersOpen={setMobileFiltersOpen}
+                theme={theme}
+                setTheme={setTheme}
+                onToggleDataEntryPage={handleToggleDataEntryPage} 
+                isDataEntryPageActive={showDataEntryPage} 
+            />
+
+            {showDataEntryPage ? (
+                 <div className="max-w-4xl mx-auto mt-8 p-4 sm:p-6 bg-white dark:bg-gray-800 shadow-xl rounded-lg"> {/* Adjusted padding for DataEntryPage container */}
                     <DataEntryPage />
                     <button 
                         onClick={handleToggleDataEntryPage} 
@@ -130,70 +133,57 @@ const ConVoiceApp = () => {
                         Zurück zur Kalenderansicht
                     </button>
                 </div>
-            </div>
-        );
-    }
-
-    return (
-        <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-gray-900">
-            <Header
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-                mobileFiltersOpen={mobileFiltersOpen}
-                setMobileFiltersOpen={setMobileFiltersOpen}
-                theme={theme}
-                setTheme={setTheme}
-                onToggleDataEntryPage={handleToggleDataEntryPage} 
-                isDataEntryPageActive={false}
-            />
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="flex flex-col lg:flex-row gap-8">
-                    <FilterSidebar
-                        mobileFiltersOpen={mobileFiltersOpen}
-                        setMobileFiltersOpen={setMobileFiltersOpen}
-                        yearFilter={selectedYear}
-                        setYearFilter={setSelectedYear}
-                        typeFilter={typeFilter}
-                        setTypeFilter={setTypeFilter}
-                        timeFilter={timeFilter}
-                        setTimeFilter={setTimeFilter}
-                        availableYears={availableYears}
-                        filteredTermine={filteredTermine}
-                    />
-                    <div className="flex-1">
-                        {nextTermin && timeFilter === 'upcoming' && (
-                            <NextEventHighlight
-                                nextTermin={nextTermin}
-                                onDownloadICS={downloadICS}
-                            />
-                        )}
-                        <div>
-                            <h2 className="text-2xl font-bold text-gray-900 mb-6 dark:text-white">
-                                {timeFilter === 'upcoming' && nextTermin ? 'Weitere Termine' : 'Alle Termine'}
-                            </h2>
-                            {filteredTermine.length === 0 ? (
-                                <div className="text-center py-12">
-                                    <Calendar className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-                                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Keine Termine gefunden</h3>
-                                    <p className="text-gray-500 dark:text-gray-400">Versuche andere Filtereinstellungen.</p>
-                                </div>
-                            ) : (
-                                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                                    {filteredTermine
-                                        .filter(termin => timeFilter !== 'upcoming' || !nextTermin || termin.id !== nextTermin.id)
-                                        .map((termin) => (
-                                            <EventCard
-                                                key={termin.id}
-                                                termin={termin}
-                                                onDownloadICS={downloadICS}
-                                            />
-                                        ))}
-                                </div>
+            ) : (
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                    <div className="flex flex-col lg:flex-row gap-8">
+                        <FilterSidebar
+                            mobileFiltersOpen={mobileFiltersOpen}
+                            setMobileFiltersOpen={setMobileFiltersOpen}
+                            yearFilter={selectedYear}
+                            setYearFilter={setSelectedYear}
+                            typeFilter={typeFilter}
+                            setTypeFilter={setTypeFilter}
+                            timeFilter={timeFilter}
+                            setTimeFilter={setTimeFilter}
+                            availableYears={availableYears}
+                            filteredTermine={filteredTermine}
+                        />
+                        <div className="flex-1">
+                            {nextTermin && timeFilter === 'upcoming' && (
+                                <NextEventHighlight
+                                    nextTermin={nextTermin}
+                                    onDownloadICS={downloadICS}
+                                />
                             )}
+                            <div>
+                                <h2 className="text-2xl font-bold text-gray-900 mb-6 dark:text-white">
+                                    {timeFilter === 'upcoming' && nextTermin ? 'Weitere Termine' : 'Alle Termine'}
+                                </h2>
+                                {filteredTermine.length === 0 ? (
+                                    <div className="text-center py-12">
+                                        <Calendar className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                                        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Keine Termine gefunden</h3>
+                                        <p className="text-gray-500 dark:text-gray-400">Versuche andere Filtereinstellungen.</p>
+                                    </div>
+                                ) : (
+                                    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                                        {filteredTermine
+                                            .filter(termin => timeFilter !== 'upcoming' || !nextTermin || termin.id !== nextTermin.id)
+                                            .map((termin) => (
+                                                <EventCard
+                                                    key={termin.id}
+                                                    termin={termin}
+                                                    onDownloadICS={downloadICS}
+                                                />
+                                            ))}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            )}
+            <ScrollToTopButton /> {/* Placed here to be part of the app shell */}
         </div>
     );
 };

@@ -130,8 +130,6 @@ const ConVoiceApp = () => {
                 setSearchTerm={setSearchTerm}
                 mobileFiltersOpen={mobileFiltersOpen}
                 setMobileFiltersOpen={setMobileFiltersOpen}
-                theme={theme} // Pass theme state
-                setTheme={setTheme} // Pass setTheme function
             />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -162,15 +160,15 @@ const ConVoiceApp = () => {
 
                         {/* Terminliste */}
                         <div>
-                            <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
                                 {timeFilter === 'upcoming' && nextTermin ? 'Weitere Termine' : 'Alle Termine'}
                             </h2>
 
                             {filteredTermine.length === 0 ? (
                                 <div className="text-center py-12">
-                                    <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                                    <h3 className="text-lg font-medium text-gray-900 mb-2">Keine Termine gefunden</h3>
-                                    <p className="text-gray-500">Versuche andere Filtereinstellungen.</p>
+                                    <Calendar className="w-16 h-16 text-gray-300 dark:text-gray-400 mx-auto mb-4" />
+                                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Keine Termine gefunden</h3>
+                                    <p className="text-gray-500 dark:text-gray-300">Versuche andere Filtereinstellungen.</p>
                                 </div>
                             ) : (
                                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">

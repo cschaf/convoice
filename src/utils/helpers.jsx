@@ -49,9 +49,35 @@ export const isTerminPast = (dateStr) => {
 };
 
 export const getDaysUntilTermin = (dateStr) => {
-    const now = new Date();
-    const terminDate = new Date(dateStr);
-    const diffTime = terminDate - now;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
+    // Today, normalized to the start of the day
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Event Date, parsed from "YYYY-MM-DD" and normalized
+    // It's important to parse the date string components to avoid timezone issues
+    // with `new Date(string)` which can vary based on string format and browser.
+    const parts = dateStr.split('-');
+    const year = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1; // JavaScript months are 0-indexed
+    const day = parseInt(parts[2], 10);
+    
+    const eventDate = new Date(year, month, day);
+    eventDate.setHours(0, 0, 0, 0); // Ensures it's at the start of the day in local timezone
+
+    // Calculate the difference in milliseconds
+    const diffInMilliseconds = eventDate.getTime() - today.getTime();
+
+    // Convert the difference to days
+    // Math.round is used to correctly categorize events happening "today" or "tomorrow"
+    const daysUntil = Math.round(diffInMilliseconds / (1000 * 60 * 60 * 24));
+
+    if (daysUntil < 0) {
+        return "Vorbei";
+    } else if (daysUntil === 0) {
+        return "Heute";
+    } else if (daysUntil === 1) {
+        return "Morgen";
+    } else {
+        return `${daysUntil} Tage`;
+    }
 };

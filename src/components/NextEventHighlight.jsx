@@ -19,6 +19,8 @@ const NextEventHighlight = ({
   const isSingleEvent = nextEvents.length === 1;
   const displayEvent = nextEvents[0]; // Primary event for common data
 
+  const daysDisplayString = getDaysUntilTermin(displayEvent.date);
+
   return (
     <div className="mb-8">
       <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-4">
@@ -107,9 +109,11 @@ const NextEventHighlight = ({
               </button>
             )}
             <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
-              {getDaysUntilTermin(displayEvent.date)} Tage
+              {daysDisplayString}
             </div>
-            <div className="text-sm text-gray-500 dark:text-slate-500">bis zum Termin</div>
+            {!(daysDisplayString === "Heute" || daysDisplayString === "Morgen" || daysDisplayString === "Vorbei") && (
+              <div className="text-sm text-gray-500 dark:text-slate-500">bis zum Termin</div>
+            )}
           </div>
         </div>
       </div>

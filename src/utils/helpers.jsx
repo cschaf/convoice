@@ -1,12 +1,12 @@
 import React from 'react'; // Added React import for JSX in getTerminIcon
 import { Music, Star, Cake, Calendar } from 'lucide-react';
 
-export const getTerminIcon = (type) => {
+export const getTerminIcon = (type, className = 'w-6 h-6') => {
     switch (type) {
-        case 'chorprobe': return <Music className="w-5 h-5" />;
-        case 'event': return <Star className="w-5 h-5" />;
-        case 'geburtstag': return <Cake className="w-5 h-5" />;
-        default: return <Calendar className="w-5 h-5" />;
+        case 'chorprobe': return <Music className={className} />;
+        case 'event': return <Star className={className} />;
+        case 'geburtstag': return <Cake className={className} />;
+        default: return <Calendar className={className} />;
     }
 };
 
@@ -49,9 +49,35 @@ export const isTerminPast = (dateStr) => {
 };
 
 export const getDaysUntilTermin = (dateStr) => {
-    const now = new Date();
-    const terminDate = new Date(dateStr);
-    const diffTime = terminDate - now;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
+    // Today, normalized to the start of the day
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Event Date, parsed from "YYYY-MM-DD" and normalized
+    // It's important to parse the date string components to avoid timezone issues
+    // with `new Date(string)` which can vary based on string format and browser.
+    const parts = dateStr.split('-');
+    const year = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1; // JavaScript months are 0-indexed
+    const day = parseInt(parts[2], 10);
+    
+    const eventDate = new Date(year, month, day);
+    eventDate.setHours(0, 0, 0, 0); // Ensures it's at the start of the day in local timezone
+
+    // Calculate the difference in milliseconds
+    const diffInMilliseconds = eventDate.getTime() - today.getTime();
+
+    // Convert the difference to days
+    // Math.round is used to correctly categorize events happening "today" or "tomorrow"
+    const daysUntil = Math.round(diffInMilliseconds / (1000 * 60 * 60 * 24));
+
+    if (daysUntil < 0) {
+        return "Vorbei";
+    } else if (daysUntil === 0) {
+        return "Heute";
+    } else if (daysUntil === 1) {
+        return "Morgen";
+    } else {
+        return `${daysUntil} Tage`;
+    }
 };

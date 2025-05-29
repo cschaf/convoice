@@ -166,6 +166,32 @@ const DataEntryPage = () => {
     document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
   };
 
+  const handleSendEmail = async () => {
+    // Validation from handleDownloadJson
+    if (!jsonDataToReview) {
+      alert('Bitte überprüfen Sie zuerst die Daten!');
+      return;
+    }
+    if (!year.trim() || isNaN(Number(year))) {
+      alert('Bitte stellen Sie sicher, dass ein gültiges Jahr festgelegt ist, bevor Sie fortfahren.');
+      return;
+    }
+
+    // Trigger download
+    handleDownloadJson(); // This also has the same validation, which is fine.
+
+    // Construct mailto URL
+    const currentYear = year.trim();
+    const subject = encodeURIComponent(`Neue Termine ${currentYear}, ConVoice`);
+    const body = encodeURIComponent(
+      `Moin Christian,\n\nim Anhang findest du neue Termine für ${currentYear}.\n\n**Bitte denke daran, die soeben heruntergeladene ${currentYear}.json Datei manuell anzuhängen.**`
+    );
+    const mailtoLink = `mailto:cschaf@outlook.com?subject=${subject}&body=${body}`;
+
+    // Trigger mailto
+    window.location.href = mailtoLink;
+  };
+
   return (
     <div className="space-y-6 p-2 sm:p-4 md:p-6">
       <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-4 sm:mb-6 text-center">Dateneingabe</h1>
@@ -268,6 +294,7 @@ const DataEntryPage = () => {
       <div className="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4 mt-6 sm:mt-8 p-4 border-t border-slate-200 dark:border-slate-700">
         <button type="button" onClick={handleReviewData} className={actionButtonClasses}>Daten überprüfen</button>
         <button type="button" onClick={handleDownloadJson} className={`${actionButtonClasses} bg-green-600 hover:bg-green-700 focus:ring-green-500`}>JSON herunterladen</button>
+        <button type="button" onClick={handleSendEmail} className={`${actionButtonClasses} bg-sky-600 hover:bg-sky-700 focus:ring-sky-500`}>Termine per Mail senden</button>
       </div>
 
       {jsonDataToReview && (

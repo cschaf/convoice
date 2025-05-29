@@ -55,6 +55,7 @@ const DataEntryPage = () => {
   const removeButtonBaseClasses = `${buttonClasses} bg-red-500 hover:bg-red-600 focus:ring-red-500 flex items-center text-xs`;
   const eventRemoveButtonClasses = `${removeButtonBaseClasses} space-x-1`; 
   const exceptionalRemoveButtonClasses = `${removeButtonBaseClasses} space-x-0 sm:space-x-1`; 
+  const explanationTextClasses = "text-sm text-gray-600 dark:text-gray-400 mb-3 italic";
   
   const actionButtonClasses = `${buttonClasses} bg-amber-500 hover:bg-amber-600 focus:ring-amber-400 w-full sm:w-auto`;
 
@@ -190,17 +191,19 @@ const DataEntryPage = () => {
       <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-4 sm:mb-6 text-center">Dateneingabe</h1>
       <div className="p-4 sm:p-6 bg-slate-50 dark:bg-slate-800 rounded-lg shadow-md">
         <label htmlFor="year" className={`${labelClasses} text-md sm:text-lg`}>Jahr:</label>
+        <p className={`${explanationTextClasses} mt-0 mb-1 text-xs`}>(Jahr für das die Termine gelten)</p> {/* Adjusted styling and placement */}
         <input type="text" id="year" name="year" placeholder="z.B. 2024" value={year} onChange={handleYearChange} className={`${inputClasses} max-w-full sm:max-w-xs text-md sm:text-lg`} />
       </div>
 
       <section className="p-4 sm:p-6 bg-slate-50 dark:bg-slate-800 rounded-lg shadow-md space-y-4 sm:space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 mb-1"> {/* Reduced mb slightly */}
           <h2 className="text-xl sm:text-2xl font-semibold text-slate-800 dark:text-slate-100">Termine</h2>
           <button type="button" onClick={addEvent} className={`${addButtonClasses} w-full sm:w-auto`}>
             <PlusCircle size={18} />
             <span className="sm:inline">Termin hinzufügen</span>
           </button>
         </div>
+        <p className={explanationTextClasses}>(Events wie Auftritte oder Konzerte)</p>
         {events.map((event, index) => (
           <div key={event.id} className="border border-slate-200 dark:border-slate-700 rounded-md shadow-sm bg-white dark:bg-slate-700/50">
             <div 
@@ -235,10 +238,11 @@ const DataEntryPage = () => {
       </section>
 
       <section className="p-4 sm:p-6 bg-slate-50 dark:bg-slate-800 rounded-lg shadow-md space-y-4">
-        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 mb-1">
           <h2 className="text-xl sm:text-2xl font-semibold text-slate-800 dark:text-slate-100">Ausnahmetage</h2>
           <button type="button" onClick={addExceptionalDate} className={`${addButtonClasses} w-full sm:w-auto`}><PlusCircle size={18} /><span className="sm:inline">Ausnahmetag hinzufügen</span></button>
         </div>
+        <p className={explanationTextClasses}>(Tage, an denen eine reguläre Chorprobe ausfällt)</p>
         {exceptionalDates.map((date, index) => (
           <div key={`exceptionalDate-${index}`} className="flex items-center space-x-2 sm:space-x-3 p-3 bg-white dark:bg-slate-700/50 border border-slate-200 dark:border-slate-700 rounded-md">
             <div className="flex-grow"><label htmlFor={`exceptionalDate-${index}`} className={`${labelClasses} sr-only`}>Datum:</label><input type="date" id={`exceptionalDate-${index}`} value={date} onChange={(e) => handleExceptionalDateChange(index, e.target.value)} className={inputClasses} /></div>
@@ -250,10 +254,11 @@ const DataEntryPage = () => {
       </section>
 
       <section className="p-4 sm:p-6 bg-slate-50 dark:bg-slate-800 rounded-lg shadow-md space-y-4">
-        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 mb-1">
           <h2 className="text-xl sm:text-2xl font-semibold text-slate-800 dark:text-slate-100">Ausnahmezeiträume</h2>
           <button type="button" onClick={addExceptionalTimespan} className={`${addButtonClasses} w-full sm:w-auto`}><PlusCircle size={18} /><span className="sm:inline">Ausnahmezeitraum hinzufügen</span></button>
         </div>
+        <p className={explanationTextClasses}>(Längere Zeiträume in denen keine Proben stattfinden, z.B. Ferien)</p>
         {exceptionalTimespans.map((timespan, index) => (
           <div key={`timespan-${index}`} className="border border-slate-200 dark:border-slate-700 rounded-md shadow-sm bg-white dark:bg-slate-700/50">
             <div
@@ -266,7 +271,7 @@ const DataEntryPage = () => {
               <div className="flex items-center flex-shrink-0">
                 {timespan.isCollapsed ? <ChevronRight size={20} className="text-slate-500 dark:text-slate-400" /> : <ChevronDown size={20} className="text-slate-500 dark:text-slate-400" />}
                 {(exceptionalTimespans.length > 1 || timespan.start !== '' || timespan.end !== '') && (
-                  <button type="button" onClick={(e) => { e.stopPropagation(); removeExceptionalTimespan(index); }} className={`${exceptionalRemoveButtonClasses} ml-4 sm:ml-6`} title="Ausnahmezeitraum entfernen"> {/* Increased margin here */}
+                  <button type="button" onClick={(e) => { e.stopPropagation(); removeExceptionalTimespan(index); }} className={`${exceptionalRemoveButtonClasses} ml-4 sm:ml-6`} title="Ausnahmezeitraum entfernen">
                     <Trash2 size={14} /> <span className="hidden sm:inline">Entfernen</span>
                   </button>
                 )}

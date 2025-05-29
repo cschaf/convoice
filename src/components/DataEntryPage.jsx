@@ -16,7 +16,7 @@ const DataEntryPage = () => {
       date: getDefaultDateForYear(),
       startTime: '',
       endTime: '',
-      type: 'event',
+      type: 'event', // Default type
       description: '',
       location: '',
       isCollapsed: true,
@@ -63,6 +63,8 @@ const DataEntryPage = () => {
 
   const handleEventInputChange = (index, field, value) => {
     const updatedEvents = [...events];
+    // No need to handle 'type' specifically if it's removed from UI,
+    // but this generic handler is fine as 'type' won't be passed as a 'field' from user input.
     updatedEvents[index][field] = value;
     setEvents(updatedEvents);
   };
@@ -70,7 +72,8 @@ const DataEntryPage = () => {
   const addEvent = () => {
     setEvents([...events, {
         id: generateEventId(), title: '', date: getDefaultDateForYear(), startTime: '', endTime: '',
-        type: 'event', description: '', location: '', isCollapsed: true, 
+        type: 'event', // Ensure new events also default to 'event'
+        description: '', location: '', isCollapsed: true, 
     }]);
   };
 
@@ -191,12 +194,12 @@ const DataEntryPage = () => {
       <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-4 sm:mb-6 text-center">Dateneingabe</h1>
       <div className="p-4 sm:p-6 bg-slate-50 dark:bg-slate-800 rounded-lg shadow-md">
         <label htmlFor="year" className={`${labelClasses} text-md sm:text-lg`}>Jahr:</label>
-        <p className={`${explanationTextClasses} mt-0 mb-1 text-xs`}>(Jahr für das die Termine gelten)</p> {/* Adjusted styling and placement */}
+        <p className={`${explanationTextClasses} mt-0 mb-1 text-xs`}>(Jahr für das die Termine gelten)</p>
         <input type="text" id="year" name="year" placeholder="z.B. 2024" value={year} onChange={handleYearChange} className={`${inputClasses} max-w-full sm:max-w-xs text-md sm:text-lg`} />
       </div>
 
       <section className="p-4 sm:p-6 bg-slate-50 dark:bg-slate-800 rounded-lg shadow-md space-y-4 sm:space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 mb-1"> {/* Reduced mb slightly */}
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 mb-1">
           <h2 className="text-xl sm:text-2xl font-semibold text-slate-800 dark:text-slate-100">Termine</h2>
           <button type="button" onClick={addEvent} className={`${addButtonClasses} w-full sm:w-auto`}>
             <PlusCircle size={18} />
@@ -227,7 +230,7 @@ const DataEntryPage = () => {
                   <div><label htmlFor={`eventDate-${event.id}`} className={labelClasses}>Datum:</label><input type="date" id={`eventDate-${event.id}`} name="date" value={event.date} onChange={(e) => handleEventInputChange(index, 'date', e.target.value)} className={inputClasses} /></div>
                   <div><label htmlFor={`eventStartTime-${event.id}`} className={labelClasses}>Startzeit:</label><input type="time" id={`eventStartTime-${event.id}`} name="startTime" value={event.startTime} onChange={(e) => handleEventInputChange(index, 'startTime', e.target.value)} className={inputClasses} /></div>
                   <div><label htmlFor={`eventEndTime-${event.id}`} className={labelClasses}>Endzeit:</label><input type="time" id={`eventEndTime-${event.id}`} name="endTime" value={event.endTime} onChange={(e) => handleEventInputChange(index, 'endTime', e.target.value)} className={inputClasses} /></div>
-                  <div><label htmlFor={`eventType-${event.id}`} className={labelClasses}>Typ:</label><select id={`eventType-${event.id}`} name="type" value={event.type} onChange={(e) => handleEventInputChange(index, 'type', e.target.value)} className={inputClasses}><option value="event">Event</option><option value="rehearsal">Probe</option><option value="concert">Konzert</option><option value="other">Sonstiges</option></select></div>
+                  {/* Event Type select field removed from here */}
                   <div className="md:col-span-2"><label htmlFor={`eventDescription-${event.id}`} className={labelClasses}>Beschreibung:</label><textarea id={`eventDescription-${event.id}`} name="description" placeholder="Beschreibung des Termins" value={event.description} onChange={(e) => handleEventInputChange(index, 'description', e.target.value)} className={inputClasses} rows="3"></textarea></div>
                   <div className="md:col-span-2"><label htmlFor={`eventLocation-${event.id}`} className={labelClasses}>Ort:</label><input type="text" id={`eventLocation-${event.id}`} name="location" placeholder="Ort des Termins" value={event.location} onChange={(e) => handleEventInputChange(index, 'location', e.target.value)} className={inputClasses} /></div>
                 </div>

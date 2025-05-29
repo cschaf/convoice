@@ -7,10 +7,11 @@ import NextEventHighlight from './components/NextEventHighlight';
 import DataEntryPage from './components/DataEntryPage';
 import ScrollToTopButton from './components/ScrollToTopButton'; // Import ScrollToTopButton
 import { downloadICS } from './utils/icsHelper';
-import { generateSampleData } from './data/sampleData';
+import { generateSampleData } from './utils/dataManager.js'; // Import generateSampleData
+// Removed: import { events as initialEventsData } from './data/events.js';
 import { members as membersListData } from './data/members.js';
-import { getYearlyData } from './data/yearlyDataLoader.js';
-import { getInitialTheme, applyTheme } from './utils/theme.js';
+import { getYearlyData } from './utils/yearlyDataLoader.js'; // Added import
+import { getInitialTheme, applyTheme } from './utils/theme.js'; // Added theme imports
 
 const ConVoiceApp = () => {
     const [theme, setTheme] = useState(getInitialTheme());

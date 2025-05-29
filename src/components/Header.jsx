@@ -1,7 +1,7 @@
 import React from 'react';
-import { Music, Menu, Search, Sun, Moon } from 'lucide-react'; // Added Sun and Moon
+import { Music, Menu, Search } from 'lucide-react'; // Added Sun and Moon
 
-const Header = ({ searchTerm, setSearchTerm, mobileFiltersOpen, setMobileFiltersOpen, theme, setTheme }) => { // Added theme and setTheme props
+const Header = ({ searchTerm, setSearchTerm, mobileFiltersOpen, setMobileFiltersOpen }) => { // Added theme and setTheme props
   return (
     <header className="bg-white shadow-lg border-b-4 border-amber-400 dark:bg-gray-800 dark:border-amber-600"> {/* Added dark mode styles */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -17,13 +17,6 @@ const Header = ({ searchTerm, setSearchTerm, mobileFiltersOpen, setMobileFilters
           </div>
 
           <div className="flex items-center space-x-2"> {/* Container for theme toggle and menu button */}
-            <button
-              onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-              className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors"
-              title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
-            >
-              {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
-            </button>
             <button
               onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
               className="lg:hidden p-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600" // Added dark mode styles

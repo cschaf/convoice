@@ -9,43 +9,32 @@ const DataEntryPage = () => {
   
   const getDefaultDateForYear = () => `${year || currentSystemYear}-01-01`;
 
-  const [events, setEvents] = useState([
-    {
-      id: generateEventId(), 
-      title: '',
-      date: getDefaultDateForYear(),
-      startTime: '',
-      endTime: '',
-      type: 'event', // Default type
-      description: '',
-      location: '',
-      isCollapsed: true,
-    },
-  ]);
-  const [exceptionalDates, setExceptionalDates] = useState([getDefaultDateForYear()]);
-  const [exceptionalTimespans, setExceptionalTimespans] = useState([
-    { 
-      start: getDefaultDateForYear(), 
-      end: getDefaultDateForYear(),
-      isCollapsed: true, 
-    }
-  ]);
+  const [events, setEvents] = useState([]); 
+  const [exceptionalDates, setExceptionalDates] = useState([]); 
+  const [exceptionalTimespans, setExceptionalTimespans] = useState([]); 
+  
   const [jsonDataToReview, setJsonDataToReview] = useState(null);
 
   useEffect(() => {
     const newDefaultDate = getDefaultDateForYear();
-    setEvents(prevEvents => 
-        prevEvents.map(event => event.date === '' ? { ...event, date: newDefaultDate } : event)
-    );
-    setExceptionalDates(prevDates => 
-        prevDates.map(date => date === '' ? newDefaultDate : date)
-    );
-    setExceptionalTimespans(prevTimespans =>
-        prevTimespans.map(ts => 
-            (ts.start === '' && ts.end === '') ? 
-            { ...ts, start: newDefaultDate, end: newDefaultDate } : ts
-        )
-    );
+    if (events.length > 0) {
+        setEvents(prevEvents => 
+            prevEvents.map(event => event.date === '' ? { ...event, date: newDefaultDate } : event)
+        );
+    }
+    if (exceptionalDates.length > 0) {
+        setExceptionalDates(prevDates => 
+            prevDates.map(date => date === '' ? newDefaultDate : date)
+        );
+    }
+    if (exceptionalTimespans.length > 0) {
+        setExceptionalTimespans(prevTimespans =>
+            prevTimespans.map(ts => 
+                (ts.start === '' && ts.end === '') ? 
+                { ...ts, start: newDefaultDate, end: newDefaultDate } : ts
+            )
+        );
+    }
   }, [year]);
 
   const inputClasses = "mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 dark:text-white";
@@ -63,8 +52,6 @@ const DataEntryPage = () => {
 
   const handleEventInputChange = (index, field, value) => {
     const updatedEvents = [...events];
-    // No need to handle 'type' specifically if it's removed from UI,
-    // but this generic handler is fine as 'type' won't be passed as a 'field' from user input.
     updatedEvents[index][field] = value;
     setEvents(updatedEvents);
   };
@@ -72,13 +59,12 @@ const DataEntryPage = () => {
   const addEvent = () => {
     setEvents([...events, {
         id: generateEventId(), title: '', date: getDefaultDateForYear(), startTime: '', endTime: '',
-        type: 'event', // Ensure new events also default to 'event'
-        description: '', location: '', isCollapsed: true, 
+        type: 'event', description: '', location: '', isCollapsed: events.length > 0, 
     }]);
   };
 
-  const removeEvent = (index) => {
-    if (events.length > 1) setEvents(events.filter((_, i) => i !== index));
+  const removeEvent = (indexToRemove) => {
+    setEvents(events.filter((_, index) => index !== indexToRemove));
   };
   
   const toggleEventCollapse = (eventId) => {
@@ -95,13 +81,8 @@ const DataEntryPage = () => {
 
   const addExceptionalDate = () => setExceptionalDates([...exceptionalDates, getDefaultDateForYear()]);
 
-  const removeExceptionalDate = (index) => {
-    if (exceptionalDates.length > 1 || (exceptionalDates.length === 1 && exceptionalDates[0] !== '')) {
-      const updatedDates = exceptionalDates.filter((_, i) => i !== index);
-      setExceptionalDates(updatedDates.length === 0 ? [getDefaultDateForYear()] : updatedDates);
-    } else if (exceptionalDates.length === 1 && exceptionalDates[0] === '') {
-        setExceptionalDates([getDefaultDateForYear()]);
-    }
+  const removeExceptionalDate = (indexToRemove) => {
+    setExceptionalDates(exceptionalDates.filter((_, index) => index !== indexToRemove));
   };
 
   const handleExceptionalTimespanChange = (index, field, value) => {
@@ -115,17 +96,12 @@ const DataEntryPage = () => {
     { 
       start: getDefaultDateForYear(), 
       end: getDefaultDateForYear(),
-      isCollapsed: true, 
+      isCollapsed: exceptionalTimespans.length > 0, 
     }
   ]);
 
-  const removeExceptionalTimespan = (index) => {
-    if (exceptionalTimespans.length > 1 || (exceptionalTimespans.length === 1 && (exceptionalTimespans[0].start !== '' || exceptionalTimespans[0].end !== ''))) {
-      const updatedTimespans = exceptionalTimespans.filter((_, i) => i !== index);
-      setExceptionalTimespans(updatedTimespans.length === 0 ? [{ start: getDefaultDateForYear(), end: getDefaultDateForYear(), isCollapsed: true }] : updatedTimespans);
-    } else if (exceptionalTimespans.length === 1 && exceptionalTimespans[0].start === '' && exceptionalTimespans[0].end === '') {
-        setExceptionalTimespans([{ start: getDefaultDateForYear(), end: getDefaultDateForYear(), isCollapsed: true }]);
-    }
+  const removeExceptionalTimespan = (indexToRemove) => {
+    setExceptionalTimespans(exceptionalTimespans.filter((_, index) => index !== indexToRemove));
   };
 
   const toggleTimespanCollapse = (index) => {
@@ -207,6 +183,7 @@ const DataEntryPage = () => {
           </button>
         </div>
         <p className={explanationTextClasses}>(Events wie Auftritte oder Konzerte)</p>
+        {events.length === 0 && <p className="text-slate-500 dark:text-slate-400 text-sm">Fügen Sie Termine hinzu</p>}
         {events.map((event, index) => (
           <div key={event.id} className="border border-slate-200 dark:border-slate-700 rounded-md shadow-sm bg-white dark:bg-slate-700/50">
             <div 
@@ -216,11 +193,9 @@ const DataEntryPage = () => {
               <h3 className="font-semibold text-slate-700 dark:text-slate-200 text-sm sm:text-base truncate pr-2">{event.title || `Neuer Termin ${index + 1}`}</h3>
               <div className="flex items-center flex-shrink-0">
                 {event.isCollapsed ? <ChevronRight size={20} className="text-slate-500 dark:text-slate-400" /> : <ChevronDown size={20} className="text-slate-500 dark:text-slate-400" />}
-                {events.length > 1 && (
-                  <button type="button" onClick={(e) => { e.stopPropagation(); removeEvent(index); }} className={`${eventRemoveButtonClasses} ml-2 sm:ml-3`} title="Termin entfernen">
-                    <Trash2 size={14} /> <span className="hidden sm:inline">Entfernen</span>
-                  </button>
-                )}
+                <button type="button" onClick={(e) => { e.stopPropagation(); removeEvent(index); }} className={`${eventRemoveButtonClasses} ml-2 sm:ml-3`} title="Termin entfernen">
+                  <Trash2 size={14} /> <span className="hidden sm:inline">Entfernen</span>
+                </button>
               </div>
             </div>
             {!event.isCollapsed && (
@@ -230,7 +205,6 @@ const DataEntryPage = () => {
                   <div><label htmlFor={`eventDate-${event.id}`} className={labelClasses}>Datum:</label><input type="date" id={`eventDate-${event.id}`} name="date" value={event.date} onChange={(e) => handleEventInputChange(index, 'date', e.target.value)} className={inputClasses} /></div>
                   <div><label htmlFor={`eventStartTime-${event.id}`} className={labelClasses}>Startzeit:</label><input type="time" id={`eventStartTime-${event.id}`} name="startTime" value={event.startTime} onChange={(e) => handleEventInputChange(index, 'startTime', e.target.value)} className={inputClasses} /></div>
                   <div><label htmlFor={`eventEndTime-${event.id}`} className={labelClasses}>Endzeit:</label><input type="time" id={`eventEndTime-${event.id}`} name="endTime" value={event.endTime} onChange={(e) => handleEventInputChange(index, 'endTime', e.target.value)} className={inputClasses} /></div>
-                  {/* Event Type select field removed from here */}
                   <div className="md:col-span-2"><label htmlFor={`eventDescription-${event.id}`} className={labelClasses}>Beschreibung:</label><textarea id={`eventDescription-${event.id}`} name="description" placeholder="Beschreibung des Termins" value={event.description} onChange={(e) => handleEventInputChange(index, 'description', e.target.value)} className={inputClasses} rows="3"></textarea></div>
                   <div className="md:col-span-2"><label htmlFor={`eventLocation-${event.id}`} className={labelClasses}>Ort:</label><input type="text" id={`eventLocation-${event.id}`} name="location" placeholder="Ort des Termins" value={event.location} onChange={(e) => handleEventInputChange(index, 'location', e.target.value)} className={inputClasses} /></div>
                 </div>
@@ -246,12 +220,11 @@ const DataEntryPage = () => {
           <button type="button" onClick={addExceptionalDate} className={`${addButtonClasses} w-full sm:w-auto`}><PlusCircle size={18} /><span className="sm:inline">Ausnahmetag hinzufügen</span></button>
         </div>
         <p className={explanationTextClasses}>(Tage, an denen eine reguläre Chorprobe ausfällt)</p>
+        {exceptionalDates.length === 0 && <p className="text-slate-500 dark:text-slate-400 text-sm">Fügen Sie Ausnahmetage hinzu</p>}
         {exceptionalDates.map((date, index) => (
           <div key={`exceptionalDate-${index}`} className="flex items-center space-x-2 sm:space-x-3 p-3 bg-white dark:bg-slate-700/50 border border-slate-200 dark:border-slate-700 rounded-md">
             <div className="flex-grow"><label htmlFor={`exceptionalDate-${index}`} className={`${labelClasses} sr-only`}>Datum:</label><input type="date" id={`exceptionalDate-${index}`} value={date} onChange={(e) => handleExceptionalDateChange(index, e.target.value)} className={inputClasses} /></div>
-            {(exceptionalDates.length > 1 || date !== '') && (
-              <button type="button" onClick={() => removeExceptionalDate(index)} className={`${exceptionalRemoveButtonClasses} self-end mb-1`}><Trash2 size={14} /> <span className="hidden sm:inline">Entfernen</span></button>
-            )}
+            <button type="button" onClick={() => removeExceptionalDate(index)} className={`${exceptionalRemoveButtonClasses} self-end mb-1`}><Trash2 size={14} /> <span className="hidden sm:inline">Entfernen</span></button>
           </div>
         ))}
       </section>
@@ -262,6 +235,7 @@ const DataEntryPage = () => {
           <button type="button" onClick={addExceptionalTimespan} className={`${addButtonClasses} w-full sm:w-auto`}><PlusCircle size={18} /><span className="sm:inline">Ausnahmezeitraum hinzufügen</span></button>
         </div>
         <p className={explanationTextClasses}>(Längere Zeiträume in denen keine Proben stattfinden, z.B. Ferien)</p>
+        {exceptionalTimespans.length === 0 && <p className="text-slate-500 dark:text-slate-400 text-sm">Fügen Sie Ausnahmezeiträume hinzu</p>}
         {exceptionalTimespans.map((timespan, index) => (
           <div key={`timespan-${index}`} className="border border-slate-200 dark:border-slate-700 rounded-md shadow-sm bg-white dark:bg-slate-700/50">
             <div
@@ -273,11 +247,9 @@ const DataEntryPage = () => {
               </h3>
               <div className="flex items-center flex-shrink-0">
                 {timespan.isCollapsed ? <ChevronRight size={20} className="text-slate-500 dark:text-slate-400" /> : <ChevronDown size={20} className="text-slate-500 dark:text-slate-400" />}
-                {(exceptionalTimespans.length > 1 || timespan.start !== '' || timespan.end !== '') && (
-                  <button type="button" onClick={(e) => { e.stopPropagation(); removeExceptionalTimespan(index); }} className={`${exceptionalRemoveButtonClasses} ml-4 sm:ml-6`} title="Ausnahmezeitraum entfernen">
-                    <Trash2 size={14} /> <span className="hidden sm:inline">Entfernen</span>
-                  </button>
-                )}
+                <button type="button" onClick={(e) => { e.stopPropagation(); removeExceptionalTimespan(index); }} className={`${exceptionalRemoveButtonClasses} ml-4 sm:ml-6`} title="Ausnahmezeitraum entfernen">
+                  <Trash2 size={14} /> <span className="hidden sm:inline">Entfernen</span>
+                </button>
               </div>
             </div>
             {!timespan.isCollapsed && (

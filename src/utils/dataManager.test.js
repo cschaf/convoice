@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { generateSampleData } from './sampleData.js';
+import { generateSampleData } from './dataManager.js';
 // import { events as initialEventsData } from './events.js'; // events.js is deleted
-import { members as membersListData } from './members.js';
+import { members as membersListData } from '../data/members.js';
 
 // Helper function to format a Date object to 'YYYY-MM-DD'
 const formatDate = (date) => {

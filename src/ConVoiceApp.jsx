@@ -101,11 +101,24 @@ const ConVoiceApp = () => {
         });
     }, [allTermine, searchTerm, selectedYear, typeFilter, timeFilter, showDataEntryPage]);
 
-    const nextTermin = useMemo(() => {
-        if (showDataEntryPage) return null;
+    const nextDayEvents = useMemo(() => {
+        if (showDataEntryPage || allTermine.length === 0) return null; // Return null if no events or in data entry
+
         const now = new Date();
         const today = now.toISOString().split('T')[0];
-        return allTermine.find(termin => termin.date >= today);
+
+        const upcomingTermine = allTermine
+            .filter(termin => termin.date >= today)
+            .sort((a, b) => a.date.localeCompare(b.date)); // Sort by date to find the soonest
+
+        if (upcomingTermine.length === 0) {
+            return null; // No upcoming events
+        }
+
+        const soonestDate = upcomingTermine[0].date;
+        const eventsOnSoonestDate = upcomingTermine.filter(termin => termin.date === soonestDate);
+
+        return eventsOnSoonestDate.length > 0 ? eventsOnSoonestDate : null;
     }, [allTermine, showDataEntryPage]);
 
     // Main render logic
@@ -150,15 +163,15 @@ const ConVoiceApp = () => {
                             filteredTermine={filteredTermine}
                         />
                         <div className="flex-1">
-                            {nextTermin && timeFilter === 'upcoming' && (
+                            {nextDayEvents && nextDayEvents.length > 0 && timeFilter === 'upcoming' && (
                                 <NextEventHighlight
-                                    nextTermin={nextTermin}
+                                    nextEvents={nextDayEvents}
                                     onDownloadICS={downloadICS}
                                 />
                             )}
                             <div>
                                 <h2 className="text-2xl font-bold text-gray-900 mb-6 dark:text-white">
-                                    {timeFilter === 'upcoming' && nextTermin ? 'Weitere Termine' : 'Alle Termine'}
+                                    {timeFilter === 'upcoming' && nextDayEvents && nextDayEvents.length > 0 ? 'Weitere Termine' : 'Alle Termine'}
                                 </h2>
                                 {filteredTermine.length === 0 ? (
                                     <div className="text-center py-12">
@@ -169,7 +182,7 @@ const ConVoiceApp = () => {
                                 ) : (
                                     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                                         {filteredTermine
-                                            .filter(termin => timeFilter !== 'upcoming' || !nextTermin || termin.id !== nextTermin.id)
+                                            .filter(termin => timeFilter !== 'upcoming' || !nextDayEvents || !nextDayEvents.find(ne => ne.id === termin.id))
                                             .map((termin) => (
                                                 <EventCard
                                                     key={termin.id}

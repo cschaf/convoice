@@ -1,12 +1,12 @@
 import React from 'react'; // Added React import for JSX in getTerminIcon
 import { Music, Star, Cake, Calendar } from 'lucide-react';
 
-export const getTerminIcon = (type) => {
+export const getTerminIcon = (type, className = 'w-6 h-6') => {
     switch (type) {
-        case 'chorprobe': return <Music className="w-5 h-5" />;
-        case 'event': return <Star className="w-5 h-5" />;
-        case 'geburtstag': return <Cake className="w-5 h-5" />;
-        default: return <Calendar className="w-5 h-5" />;
+        case 'chorprobe': return <Music className={className} />;
+        case 'event': return <Star className={className} />;
+        case 'geburtstag': return <Cake className={className} />;
+        default: return <Calendar className={className} />;
     }
 };
 

@@ -35,16 +35,18 @@ const NextEventHighlight = ({
         <div className="flex items-start justify-between">
           {/* Left side: Main Icon and Content */}
           <div className="flex items-start space-x-4 flex-1">
-            <div className={`p-3 rounded-full ${
-              getTerminAccent(displayEvent.type) // Use displayEvent
-            } ${ 
-              displayEvent.type === 'chorprobe' ? 'dark:text-blue-400' :
-              displayEvent.type === 'event' ? 'dark:text-amber-400' :
-              displayEvent.type === 'geburtstag' ? 'dark:text-pink-400' :
-              'dark:text-gray-400'
-            } bg-white dark:bg-slate-700`}>
-              {getTerminIcon(displayEvent.type)} {/* Default size (w-6 h-6 from helper) */}
-            </div>
+            {isSingleEvent && (
+              <div className={`p-3 rounded-full ${
+                getTerminAccent(displayEvent.type) // Use displayEvent
+              } ${ 
+                displayEvent.type === 'chorprobe' ? 'dark:text-blue-400' :
+                displayEvent.type === 'event' ? 'dark:text-amber-400' :
+                displayEvent.type === 'geburtstag' ? 'dark:text-pink-400' :
+                'dark:text-gray-400'
+              } bg-white dark:bg-slate-700`}>
+                {getTerminIcon(displayEvent.type)} {/* Default size (w-6 h-6 from helper) */}
+              </div>
+            )}
             <div className="flex-1">
               {isSingleEvent ? (
                 // JSX for Single Event Detail
@@ -95,13 +97,15 @@ const NextEventHighlight = ({
           </div>
           {/* Right side: ICS Download and Days Until (common) */}
           <div className="text-right flex-shrink-0 pl-4">
-            <button
-              onClick={() => onDownloadICS(displayEvent)} // Use displayEvent
-              className="mb-4 p-2 bg-white dark:bg-slate-700 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300"
-              title="Zu Kalender hinzufügen"
-            >
-              <Calendar className="w-5 h-5" />
-            </button>
+            {isSingleEvent && (
+              <button
+                onClick={() => onDownloadICS(displayEvent)} // Use displayEvent
+                className="mb-4 p-2 bg-white dark:bg-slate-700 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300"
+                title="Zu Kalender hinzufügen"
+              >
+                <Calendar className="w-5 h-5" />
+              </button>
+            )}
             <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
               {getDaysUntilTermin(displayEvent.date)} Tage
             </div>

@@ -44,7 +44,7 @@ const Header = ({
             >
               {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
             </button>
-            
+
             {!isDataEntryPageActive && (
                 <button
                     onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}

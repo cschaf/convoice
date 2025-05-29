@@ -113,21 +113,21 @@ const ConVoiceApp = () => {
     return (
         <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-gray-900">
             <Header
-                searchTerm={searchTerm} 
+                searchTerm={searchTerm}
                 setSearchTerm={setSearchTerm}
-                mobileFiltersOpen={mobileFiltersOpen} 
+                mobileFiltersOpen={mobileFiltersOpen}
                 setMobileFiltersOpen={setMobileFiltersOpen}
                 theme={theme}
                 setTheme={setTheme}
-                onToggleDataEntryPage={handleToggleDataEntryPage} 
-                isDataEntryPageActive={showDataEntryPage} 
+                onToggleDataEntryPage={handleToggleDataEntryPage}
+                isDataEntryPageActive={showDataEntryPage}
             />
 
             {showDataEntryPage ? (
                  <div className="max-w-4xl mx-auto mt-8 p-4 sm:p-6 bg-white dark:bg-gray-800 shadow-xl rounded-lg"> {/* Adjusted padding for DataEntryPage container */}
                     <DataEntryPage />
-                    <button 
-                        onClick={handleToggleDataEntryPage} 
+                    <button
+                        onClick={handleToggleDataEntryPage}
                         className="mt-8 px-4 py-2 bg-amber-500 text-white rounded hover:bg-amber-600 transition-colors"
                     >
                         Zurück zur Kalenderansicht
@@ -184,6 +184,62 @@ const ConVoiceApp = () => {
                 </div>
             )}
             <ScrollToTopButton /> {/* Placed here to be part of the app shell */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div className="flex flex-col lg:flex-row gap-8">
+                    <FilterSidebar
+                        mobileFiltersOpen={mobileFiltersOpen}
+                        setMobileFiltersOpen={setMobileFiltersOpen}
+                        yearFilter={selectedYear} // Changed prop name
+                        setYearFilter={setSelectedYear} // Changed prop name
+                        typeFilter={typeFilter}
+                        setTypeFilter={setTypeFilter}
+                        timeFilter={timeFilter}
+                        setTimeFilter={setTimeFilter}
+                        availableYears={availableYears} // Pass new state
+                        filteredTermine={filteredTermine}
+                    />
+
+                    {/* Hauptinhalt */}
+                    <div className="flex-1">
+                        {/* Nächster Termin Hervorhebung */}
+                        {nextTermin && timeFilter === 'upcoming' && (
+                            <NextEventHighlight
+                                nextTermin={nextTermin}
+                                // getTerminColor, getTerminAccent, getTerminIcon, formatDate, getDaysUntilTermin props removed
+                                onDownloadICS={downloadICS}
+                            />
+                        )}
+
+                        {/* Terminliste */}
+                        <div>
+                            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+                                {timeFilter === 'upcoming' && nextTermin ? 'Weitere Termine' : 'Alle Termine'}
+                            </h2>
+
+                            {filteredTermine.length === 0 ? (
+                                <div className="text-center py-12">
+                                    <Calendar className="w-16 h-16 text-gray-300 dark:text-gray-400 mx-auto mb-4" />
+                                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Keine Termine gefunden</h3>
+                                    <p className="text-gray-500 dark:text-gray-300">Versuche andere Filtereinstellungen.</p>
+                                </div>
+                            ) : (
+                                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                                    {filteredTermine
+                                        .filter(termin => timeFilter !== 'upcoming' || !nextTermin || termin.id !== nextTermin.id)
+                                        .map((termin) => (
+                                            <EventCard
+                                                key={termin.id}
+                                                termin={termin}
+                                                // getTerminColor, getTerminAccent, getTerminIcon, formatDate, isTerminPast, getDaysUntilTermin props removed
+                                                onDownloadICS={downloadICS}
+                                            />
+                                        ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };

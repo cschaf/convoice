@@ -36,15 +36,6 @@ const Header = ({
                 <span className="hidden sm:inline">{isDataEntryPageActive ? "Kalender" : "Daten verwalten"}</span>
               </button>
             )}
-
-            <button
-              onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-              className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors"
-              title={theme === 'light' ? 'Dunkelmodus aktivieren' : 'Heller Modus aktivieren'}
-            >
-              {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
-            </button>
-
             {!isDataEntryPageActive && (
                 <button
                     onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}

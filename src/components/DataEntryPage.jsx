@@ -488,9 +488,17 @@ const DataEntryPage = () => {
       </section>
       
       <div className="p-4 sm:p-6 bg-slate-50 dark:bg-slate-800 rounded-lg shadow-md">
-        <label htmlFor="year" className={`${labelClasses} text-md sm:text-lg`}>Jahr:</label>
+        <h2 className="text-xl sm:text-2xl font-semibold text-slate-800 dark:text-slate-100 mb-3">Jahr</h2>
         <p className={`${explanationTextClasses} mt-0 mb-1 text-xs`}>(Jahr für das die Termine gelten)</p>
-        <input type="text" id="year" name="year" placeholder="z.B. 2024" value={year} onChange={handleYearChange} className={`${inputClasses} max-w-full sm:max-w-xs text-md sm:text-lg`} />
+        <input 
+          type="text" 
+          id="year" 
+          name="year" 
+          placeholder="z.B. 2024" 
+          value={year} 
+          onChange={handleYearChange} 
+          className={`${inputClasses} max-w-full sm:max-w-xs text-md sm:text-lg`} 
+        />
       </div>
 
       <section className="p-4 sm:p-6 bg-slate-50 dark:bg-slate-800 rounded-lg shadow-md space-y-4 sm:space-y-6">

@@ -382,7 +382,6 @@ const DataEntryPage = () => {
   };
 
   const handleDownloadJson = () => {
-    if (!jsonDataToReview) { toast.warning('Bitte überprüfen Sie zuerst die Daten!'); return; }
     if (!year.trim() || isNaN(Number(year))) { toast.warning('Bitte stellen Sie sicher, dass ein gültiges Jahr festgelegt ist, bevor Sie herunterladen.'); return; }
     const jsonString = JSON.stringify(jsonDataToReview, null, 2); const blob = new Blob([jsonString], { type: 'application/json' });
     const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `${year.trim()}.json`;
@@ -391,10 +390,6 @@ const DataEntryPage = () => {
 
   const handleSendEmail = async () => {
     // Validation from handleDownloadJson
-    if (!jsonDataToReview) {
-      toast.warning('Bitte überprüfen Sie zuerst die Daten!');
-      return;
-    }
     if (!year.trim() || isNaN(Number(year))) {
       toast.warning('Bitte stellen Sie sicher, dass ein gültiges Jahr festgelegt ist, bevor Sie fortfahren.');
       return;

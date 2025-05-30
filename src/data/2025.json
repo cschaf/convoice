@@ -52,22 +52,22 @@
     },
     {
       "id": "evt-1748584780914-l64v2",
-      "title": "Auftritt",
+      "title": "Nacht der Chöre",
       "date": "2025-10-30",
       "startTime": "19:30",
       "endTime": "20:30",
       "type": "event",
-      "description": "Nacht der Chöre",
+      "description": "Auftritt",
       "location": "Huchting"
     },
     {
       "id": "evt-1748585455248-sb86t",
-      "title": "Auftritt",
+      "title": "Adventsmusik",
       "date": "2025-12-06",
       "startTime": "15:00",
       "endTime": "16:00",
       "type": "event",
-      "description": "Adventsmusik",
+      "description": "Auftritt",
       "location": "Huchting"
     },
     {

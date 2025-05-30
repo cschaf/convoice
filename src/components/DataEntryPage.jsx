@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, Trash2, ChevronDown, ChevronRight, Info } from 'lucide-react';
+import { toast } from 'sonner';
 import ScrollToTopButton from './ScrollToTopButton'; // Import the ScrollToTopButton
 import { getYearlyData } from '../utils/yearlyDataLoader.js';
 import config from '../data/config.json';
@@ -411,6 +412,7 @@ const DataEntryPage = () => {
     const mailtoLink = `mailto:cschaf@outlook.com?subject=${subject}&body=${body}`;
 
     // Trigger mailto
+    toast.info("E-Mail-Client wird geöffnet...");
     window.location.href = mailtoLink;
   };
 

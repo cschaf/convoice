@@ -135,12 +135,16 @@ const ConVoiceApp = () => {
     // Main render logic
     // The ScrollToTopButton is placed outside the conditional rendering of views
     // but inside the main app container so it has access to the app's scroll context.
-    if (!isAuthenticated) {
-        return <LoginPage onLoginSuccess={handleLoginSuccess} />;
-    }
+    // if (!isAuthenticated) {
+    //     return <LoginPage onLoginSuccess={handleLoginSuccess} />;
+    // }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-gray-900">
+      <>
+        {!isAuthenticated ? (
+          <LoginPage onLoginSuccess={handleLoginSuccess} />
+        ) : (
+          <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-gray-900">
             <Header
                 searchTerm={searchTerm}
                 setSearchTerm={setSearchTerm}
@@ -214,8 +218,10 @@ const ConVoiceApp = () => {
                 </div>
             )}
             <ScrollToTopButton /> {/* Placed here to be part of the app shell */}
-            <Toaster />
-        </div>
+          </div>
+        )}
+        <Toaster /> {/* Moved Toaster here so it's always present */}
+      </>
     );
 };
 

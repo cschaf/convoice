@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, Trash2, ChevronDown, ChevronRight, Info } from 'lucide-react';
+import { toast } from 'sonner';
 import ScrollToTopButton from './ScrollToTopButton'; // Import the ScrollToTopButton
 import { getYearlyData } from '../utils/yearlyDataLoader.js';
 import config from '../data/config.json';
@@ -61,7 +62,7 @@ const DataEntryPage = () => {
   const handleLoadYearData = async () => {
     const selectedYearToLoad = loadYearSelect;
     if (!selectedYearToLoad) {
-      alert('Bitte wählen Sie ein Jahr aus der Liste aus.');
+      toast.warning('Bitte wählen Sie ein Jahr aus der Liste aus.');
       return;
     }
 
@@ -69,7 +70,7 @@ const DataEntryPage = () => {
       const data = await getYearlyData(selectedYearToLoad);
 
       if (!data || !Array.isArray(data.events) || !Array.isArray(data.exceptionalDates) || !Array.isArray(data.exceptionalTimespans)) {
-        alert(`Daten für das Jahr ${selectedYearToLoad} sind fehlerhaft oder nicht im erwarteten Format.`);
+        toast.error(`Daten für das Jahr ${selectedYearToLoad} sind fehlerhaft oder nicht im erwarteten Format.`);
         // Optionally reset view if data is corrupt
         // setEvents([]);
         // setExceptionalDates([]);
@@ -96,11 +97,11 @@ const DataEntryPage = () => {
       setExceptionalTimespans(processedExceptionalTimespans);
       setJsonDataToReview(null); // Reset review data
 
-      alert(`Daten für das Jahr ${selectedYearToLoad} wurden geladen.`);
+      toast.success(`Daten für das Jahr ${selectedYearToLoad} wurden geladen.`);
 
     } catch (error) {
       console.error("Fehler beim Laden der Jahresdaten:", error);
-      alert(`Fehler beim Laden der Daten für das Jahr ${selectedYearToLoad}. Details siehe Konsole. Möglicherweise existiert die Datei für dieses Jahr noch nicht oder ist nicht zugreifbar.`);
+      toast.error(`Fehler beim Laden der Daten für das Jahr ${selectedYearToLoad}. Details siehe Konsole. Möglicherweise existiert die Datei für dieses Jahr noch nicht oder ist nicht zugreifbar.`);
       // Potentially reset view or parts of it
       // setEvents([]);
       // setExceptionalDates([]);
@@ -110,7 +111,7 @@ const DataEntryPage = () => {
 
   const handleFileUploadAndValidate = async () => {
     if (!selectedFile) {
-      alert('Bitte wählen Sie zuerst eine Datei aus.');
+      toast.warning('Bitte wählen Sie zuerst eine Datei aus.');
       return;
     }
 
@@ -122,7 +123,7 @@ const DataEntryPage = () => {
         parsedData = JSON.parse(text);
       } catch (error) {
         console.error("JSON Parsing Error:", error);
-        alert(`Fehler beim Parsen der JSON-Datei: ${error.message}. Stellen Sie sicher, dass die Datei korrekt formatiert ist.`);
+        toast.error(`Fehler beim Parsen der JSON-Datei: ${error.message}. Stellen Sie sicher, dass die Datei korrekt formatiert ist.`);
         return;
       }
 
@@ -141,7 +142,7 @@ const DataEntryPage = () => {
           !Array.isArray(parsedData.events) ||
           !Array.isArray(parsedData.exceptionalDates) ||
           !Array.isArray(parsedData.exceptionalTimespans)) {
-        alert('Validierungsfehler: Die Datei muss ein JSON-Objekt mit den Schlüsseln "events" (Array), "exceptionalDates" (Array) und "exceptionalTimespans" (Array) sein.');
+        toast.error('Validierungsfehler: Die Datei muss ein JSON-Objekt mit den Schlüsseln "events" (Array), "exceptionalDates" (Array) und "exceptionalTimespans" (Array) sein.');
         return;
       }
 
@@ -149,26 +150,26 @@ const DataEntryPage = () => {
       for (let i = 0; i < parsedData.events.length; i++) {
         const event = parsedData.events[i];
         if (typeof event !== 'object' || event === null) {
-            alert(`Validierungsfehler im Termin ${i + 1}: Ist kein valides Objekt.`);
+            toast.error(`Validierungsfehler im Termin ${i + 1}: Ist kein valides Objekt.`);
             return;
         }
 
         const eventTitle = event.title || `Termin ${i + 1}`;
 
         if (!event.title || typeof event.title !== 'string' || event.title.trim() === '') {
-          alert(`Validierungsfehler im Termin "${eventTitle}": Feld 'title' ist erforderlich und darf nicht leer sein.`);
+          toast.error(`Validierungsfehler im Termin "${eventTitle}": Feld 'title' ist erforderlich und darf nicht leer sein.`);
           return;
         }
         if (!event.date || typeof event.date !== 'string' || !datePattern.test(event.date)) {
-          alert(`Validierungsfehler im Termin "${eventTitle}": Feld 'date' ist erforderlich und muss im Format JJJJ-MM-TT sein.`);
+          toast.error(`Validierungsfehler im Termin "${eventTitle}": Feld 'date' ist erforderlich und muss im Format JJJJ-MM-TT sein.`);
           return;
         }
         if (!event.startTime || typeof event.startTime !== 'string' || !timePattern.test(event.startTime)) {
-          alert(`Validierungsfehler im Termin "${eventTitle}": Feld 'startTime' ist erforderlich und muss im Format HH:MM sein.`);
+          toast.error(`Validierungsfehler im Termin "${eventTitle}": Feld 'startTime' ist erforderlich und muss im Format HH:MM sein.`);
           return;
         }
         if (!event.endTime || typeof event.endTime !== 'string' || !timePattern.test(event.endTime)) {
-          alert(`Validierungsfehler im Termin "${eventTitle}": Feld 'endTime' ist erforderlich und muss im Format HH:MM sein.`);
+          toast.error(`Validierungsfehler im Termin "${eventTitle}": Feld 'endTime' ist erforderlich und muss im Format HH:MM sein.`);
           return;
         }
 
@@ -191,7 +192,7 @@ const DataEntryPage = () => {
       for (let i = 0; i < parsedData.exceptionalDates.length; i++) {
         const exDate = parsedData.exceptionalDates[i];
         if (typeof exDate !== 'string' || !datePattern.test(exDate)) {
-          alert(`Validierungsfehler im Ausnahmetag ${i + 1}: Muss ein String im Format JJJJ-MM-TT sein.`);
+          toast.error(`Validierungsfehler im Ausnahmetag ${i + 1}: Muss ein String im Format JJJJ-MM-TT sein.`);
           return;
         }
         const exDateYear = exDate.substring(0, 4);
@@ -205,17 +206,17 @@ const DataEntryPage = () => {
       for (let i = 0; i < parsedData.exceptionalTimespans.length; i++) {
         const ts = parsedData.exceptionalTimespans[i];
         if (typeof ts !== 'object' || ts === null) {
-            alert(`Validierungsfehler im Ausnahmezeitraum ${i + 1}: Ist kein valides Objekt.`);
+            toast.error(`Validierungsfehler im Ausnahmezeitraum ${i + 1}: Ist kein valides Objekt.`);
             return;
         }
         const tsIdentifier = (ts.start && ts.end) ? `${ts.start} - ${ts.end}` : `Zeitraum ${i + 1}`;
 
         if (!ts.start || typeof ts.start !== 'string' || !datePattern.test(ts.start)) {
-          alert(`Validierungsfehler im Ausnahmezeitraum "${tsIdentifier}": Feld 'start' ist erforderlich und muss im Format JJJJ-MM-TT sein.`);
+          toast.error(`Validierungsfehler im Ausnahmezeitraum "${tsIdentifier}": Feld 'start' ist erforderlich und muss im Format JJJJ-MM-TT sein.`);
           return;
         }
         if (!ts.end || typeof ts.end !== 'string' || !datePattern.test(ts.end)) {
-          alert(`Validierungsfehler im Ausnahmezeitraum "${tsIdentifier}": Feld 'end' ist erforderlich und muss im Format JJJJ-MM-TT sein.`);
+          toast.error(`Validierungsfehler im Ausnahmezeitraum "${tsIdentifier}": Feld 'end' ist erforderlich und muss im Format JJJJ-MM-TT sein.`);
           return;
         }
 
@@ -237,7 +238,7 @@ const DataEntryPage = () => {
       // --- End Validation ---
 
       if (warnings.length > 0) {
-        alert("Warnungen:\n" + warnings.join("\n"));
+        toast.warning("Warnungen: " + warnings.join(", "));
       }
 
       // Update states
@@ -253,12 +254,12 @@ const DataEntryPage = () => {
           // As per simplified rule: if the year state is empty or different from the year of the first event, update.
           // No confirm() for now, directly updating.
           setYear(firstEventYear); 
-          alert(`Datei erfolgreich hochgeladen und validiert. Daten wurden in das Formular geladen. Das Hauptjahr wurde auf ${firstEventYear} aktualisiert (basierend auf dem ersten Termin).`);
+          toast.success(`Datei erfolgreich hochgeladen und validiert. Daten wurden in das Formular geladen. Das Hauptjahr wurde auf ${firstEventYear} aktualisiert (basierend auf dem ersten Termin).`);
         } else {
-          alert("Datei erfolgreich hochgeladen und validiert. Daten wurden in das Formular geladen.");
+          toast.success("Datei erfolgreich hochgeladen und validiert. Daten wurden in das Formular geladen.");
         }
       } else {
-        alert("Datei erfolgreich hochgeladen und validiert. Daten wurden in das Formular geladen.");
+        toast.success("Datei erfolgreich hochgeladen und validiert. Daten wurden in das Formular geladen.");
       }
       setSelectedFile(null); // Reset file input
       const fileInput = document.getElementById('fileUpload'); // Reset file input visually
@@ -268,7 +269,7 @@ const DataEntryPage = () => {
     };
     reader.onerror = (e) => {
         console.error("FileReader Error:", e);
-        alert("Fehler beim Lesen der Datei.");
+        toast.error("Fehler beim Lesen der Datei.");
     };
     reader.readAsText(selectedFile);
   };
@@ -337,37 +338,37 @@ const DataEntryPage = () => {
 
   const handleReviewData = () => {
     if (!year.trim() || isNaN(Number(year))) {
-        alert(year.trim() ? 'Das Jahr muss eine Zahl sein.' : 'Bitte geben Sie ein gültiges Jahr ein.');
+        toast.warning(year.trim() ? 'Das Jahr muss eine Zahl sein.' : 'Bitte geben Sie ein gültiges Jahr ein.');
         setJsonDataToReview(null); return;
     }
     const selectedYearNumber = year.trim();
     for (let i = 0; i < events.length; i++) {
       const event = events[i];
       if (!event.title.trim() || !event.date.trim() || !event.startTime.trim() || !event.endTime.trim()) {
-        alert(`Bitte füllen Sie alle Pflichtfelder für Termin ${i + 1} korrekt aus (Titel, Datum, Startzeit, Endzeit).`);
+        toast.warning(`Bitte füllen Sie alle Pflichtfelder für Termin ${i + 1} korrekt aus (Titel, Datum, Startzeit, Endzeit).`);
         setJsonDataToReview(null); return;
       }
       const datePattern = /^\d{4}-\d{2}-\d{2}$/; const timePattern = /^\d{2}:\d{2}$/;
-      if (!datePattern.test(event.date)) { alert(`Ungültiges Datumsformat für Termin ${i + 1}. Bitte verwenden Sie JJJJ-MM-TT.`); setJsonDataToReview(null); return; }
+      if (!datePattern.test(event.date)) { toast.warning(`Ungültiges Datumsformat für Termin ${i + 1}. Bitte verwenden Sie JJJJ-MM-TT.`); setJsonDataToReview(null); return; }
       if (event.date.substring(0, 4) !== selectedYearNumber) {
-        alert(`Das Jahr im Datum des Termins "${event.title || `Termin ${i+1}`}" (${event.date.substring(0,4)}) stimmt nicht mit dem ausgewählten Jahr (${selectedYearNumber}) überein.`);
+        toast.warning(`Das Jahr im Datum des Termins "${event.title || `Termin ${i+1}`}" (${event.date.substring(0,4)}) stimmt nicht mit dem ausgewählten Jahr (${selectedYearNumber}) überein.`);
         setJsonDataToReview(null); return;
       }
-      if (!timePattern.test(event.startTime) || !timePattern.test(event.endTime)) { alert(`Ungültiges Zeitformat für Termin ${i + 1}. Bitte verwenden Sie HH:MM.`); setJsonDataToReview(null); return; }
+      if (!timePattern.test(event.startTime) || !timePattern.test(event.endTime)) { toast.warning(`Ungültiges Zeitformat für Termin ${i + 1}. Bitte verwenden Sie HH:MM.`); setJsonDataToReview(null); return; }
     }
     for (const exDate of exceptionalDates) {
         if (exDate.trim() !== '' && exDate.substring(0, 4) !== selectedYearNumber) {
-            alert(`Das Jahr im Ausnahmetag (${exDate.substring(0,4)}) stimmt nicht mit dem ausgewählten Jahr (${selectedYearNumber}) überein.`);
+            toast.warning(`Das Jahr im Ausnahmetag (${exDate.substring(0,4)}) stimmt nicht mit dem ausgewählten Jahr (${selectedYearNumber}) überein.`);
             setJsonDataToReview(null); return;
         }
     }
     for (const ts of exceptionalTimespans) {
         if (ts.start.trim() !== '' && ts.start.substring(0, 4) !== selectedYearNumber) {
-            alert(`Das Jahr im Startdatum des Ausnahmezeitraums (${ts.start.substring(0,4)}) stimmt nicht mit dem ausgewählten Jahr (${selectedYearNumber}) überein.`);
+            toast.warning(`Das Jahr im Startdatum des Ausnahmezeitraums (${ts.start.substring(0,4)}) stimmt nicht mit dem ausgewählten Jahr (${selectedYearNumber}) überein.`);
             setJsonDataToReview(null); return;
         }
         if (ts.end.trim() !== '' && ts.end.substring(0, 4) !== selectedYearNumber) {
-            alert(`Das Jahr im Enddatum des Ausnahmezeitraums (${ts.end.substring(0,4)}) stimmt nicht mit dem ausgewählten Jahr (${selectedYearNumber}) überein.`);
+            toast.warning(`Das Jahr im Enddatum des Ausnahmezeitraums (${ts.end.substring(0,4)}) stimmt nicht mit dem ausgewählten Jahr (${selectedYearNumber}) überein.`);
             setJsonDataToReview(null); return;
         }
     }
@@ -377,12 +378,11 @@ const DataEntryPage = () => {
         .filter(ts => ts.start.trim() !== '' && ts.end.trim() !== '')
         .map(({ isCollapsed, ...ts }) => ts); 
     const structuredData = { events: filteredEvents, exceptionalDates: filteredExceptionalDates, exceptionalTimespans: filteredExceptionalTimespans };
-    setJsonDataToReview(structuredData); console.log('Strukturierte Daten zur Überprüfung:', structuredData); alert('Daten strukturiert und bereit zur Überprüfung (siehe Konsole).');
+    setJsonDataToReview(structuredData); console.log('Strukturierte Daten zur Überprüfung:', structuredData); toast.info('Daten strukturiert und bereit zur Überprüfung (siehe Konsole).');
   };
 
   const handleDownloadJson = () => {
-    if (!jsonDataToReview) { alert('Bitte überprüfen Sie zuerst die Daten!'); return; }
-    if (!year.trim() || isNaN(Number(year))) { alert('Bitte stellen Sie sicher, dass ein gültiges Jahr festgelegt ist, bevor Sie herunterladen.'); return; }
+    if (!year.trim() || isNaN(Number(year))) { toast.warning('Bitte stellen Sie sicher, dass ein gültiges Jahr festgelegt ist, bevor Sie herunterladen.'); return; }
     const jsonString = JSON.stringify(jsonDataToReview, null, 2); const blob = new Blob([jsonString], { type: 'application/json' });
     const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `${year.trim()}.json`;
     document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
@@ -390,12 +390,8 @@ const DataEntryPage = () => {
 
   const handleSendEmail = async () => {
     // Validation from handleDownloadJson
-    if (!jsonDataToReview) {
-      alert('Bitte überprüfen Sie zuerst die Daten!');
-      return;
-    }
     if (!year.trim() || isNaN(Number(year))) {
-      alert('Bitte stellen Sie sicher, dass ein gültiges Jahr festgelegt ist, bevor Sie fortfahren.');
+      toast.warning('Bitte stellen Sie sicher, dass ein gültiges Jahr festgelegt ist, bevor Sie fortfahren.');
       return;
     }
 
@@ -411,6 +407,7 @@ const DataEntryPage = () => {
     const mailtoLink = `mailto:cschaf@outlook.com?subject=${subject}&body=${body}`;
 
     // Trigger mailto
+    toast.info("E-Mail-Client wird geöffnet...");
     window.location.href = mailtoLink;
   };
 

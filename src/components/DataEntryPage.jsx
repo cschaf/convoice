@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, Trash2, ChevronDown, ChevronRight, Info } from 'lucide-react';
 import ScrollToTopButton from './ScrollToTopButton'; // Import the ScrollToTopButton
+import { getYearlyData } from '../utils/yearlyDataLoader.js';
+import config from '../data/config.json';
+
+const { availableYears } = config;
 
 const generateEventId = () => `evt-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
 
 const DataEntryPage = () => {
   const currentSystemYear = new Date().getFullYear().toString();
   const [year, setYear] = useState(currentSystemYear);
+  const [loadYearSelect, setLoadYearSelect] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [isLoadDataSectionCollapsed, setIsLoadDataSectionCollapsed] = useState(true);
   
   const getDefaultDateForYear = () => `${year || currentSystemYear}-01-01`;
 
@@ -50,6 +57,221 @@ const DataEntryPage = () => {
   const actionButtonClasses = `${buttonClasses} bg-amber-500 hover:bg-amber-600 focus:ring-amber-400 w-full sm:w-auto`;
 
   const handleYearChange = (e) => setYear(e.target.value);
+
+  const handleLoadYearData = async () => {
+    const selectedYearToLoad = loadYearSelect;
+    if (!selectedYearToLoad) {
+      alert('Bitte wählen Sie ein Jahr aus der Liste aus.');
+      return;
+    }
+
+    try {
+      const data = await getYearlyData(selectedYearToLoad);
+
+      if (!data || !Array.isArray(data.events) || !Array.isArray(data.exceptionalDates) || !Array.isArray(data.exceptionalTimespans)) {
+        alert(`Daten für das Jahr ${selectedYearToLoad} sind fehlerhaft oder nicht im erwarteten Format.`);
+        // Optionally reset view if data is corrupt
+        // setEvents([]);
+        // setExceptionalDates([]);
+        // setExceptionalTimespans([]);
+        // setYear(currentSystemYear); // Or keep selected year but show error
+        return;
+      }
+
+      // Add isCollapsed property to events and exceptionalTimespans if missing
+      const processedEvents = data.events.map(event => ({
+        ...event,
+        id: event.id || generateEventId(), // Ensure ID exists
+        isCollapsed: typeof event.isCollapsed === 'boolean' ? event.isCollapsed : true, 
+      }));
+      const processedExceptionalTimespans = data.exceptionalTimespans.map(ts => ({
+        ...ts,
+        isCollapsed: typeof ts.isCollapsed === 'boolean' ? ts.isCollapsed : true,
+      }));
+
+
+      setYear(selectedYearToLoad);
+      setEvents(processedEvents);
+      setExceptionalDates(data.exceptionalDates || []);
+      setExceptionalTimespans(processedExceptionalTimespans);
+      setJsonDataToReview(null); // Reset review data
+
+      alert(`Daten für das Jahr ${selectedYearToLoad} wurden geladen.`);
+
+    } catch (error) {
+      console.error("Fehler beim Laden der Jahresdaten:", error);
+      alert(`Fehler beim Laden der Daten für das Jahr ${selectedYearToLoad}. Details siehe Konsole. Möglicherweise existiert die Datei für dieses Jahr noch nicht oder ist nicht zugreifbar.`);
+      // Potentially reset view or parts of it
+      // setEvents([]);
+      // setExceptionalDates([]);
+      // setExceptionalTimespans([]);
+    }
+  };
+
+  const handleFileUploadAndValidate = async () => {
+    if (!selectedFile) {
+      alert('Bitte wählen Sie zuerst eine Datei aus.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const text = e.target.result;
+      let parsedData;
+      try {
+        parsedData = JSON.parse(text);
+      } catch (error) {
+        console.error("JSON Parsing Error:", error);
+        alert(`Fehler beim Parsen der JSON-Datei: ${error.message}. Stellen Sie sicher, dass die Datei korrekt formatiert ist.`);
+        return;
+      }
+
+      // --- Validation ---
+      const mainYear = year.trim(); // Current main year from state
+      const warnings = [];
+      const processedEvents = [];
+      const processedExceptionalDates = [];
+      const processedExceptionalTimespans = [];
+
+      const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+      const timePattern = /^\d{2}:\d{2}$/;
+
+      // 1. Validate top-level structure
+      if (typeof parsedData !== 'object' || parsedData === null ||
+          !Array.isArray(parsedData.events) ||
+          !Array.isArray(parsedData.exceptionalDates) ||
+          !Array.isArray(parsedData.exceptionalTimespans)) {
+        alert('Validierungsfehler: Die Datei muss ein JSON-Objekt mit den Schlüsseln "events" (Array), "exceptionalDates" (Array) und "exceptionalTimespans" (Array) sein.');
+        return;
+      }
+
+      // 2. Validate Events
+      for (let i = 0; i < parsedData.events.length; i++) {
+        const event = parsedData.events[i];
+        if (typeof event !== 'object' || event === null) {
+            alert(`Validierungsfehler im Termin ${i + 1}: Ist kein valides Objekt.`);
+            return;
+        }
+
+        const eventTitle = event.title || `Termin ${i + 1}`;
+
+        if (!event.title || typeof event.title !== 'string' || event.title.trim() === '') {
+          alert(`Validierungsfehler im Termin "${eventTitle}": Feld 'title' ist erforderlich und darf nicht leer sein.`);
+          return;
+        }
+        if (!event.date || typeof event.date !== 'string' || !datePattern.test(event.date)) {
+          alert(`Validierungsfehler im Termin "${eventTitle}": Feld 'date' ist erforderlich und muss im Format JJJJ-MM-TT sein.`);
+          return;
+        }
+        if (!event.startTime || typeof event.startTime !== 'string' || !timePattern.test(event.startTime)) {
+          alert(`Validierungsfehler im Termin "${eventTitle}": Feld 'startTime' ist erforderlich und muss im Format HH:MM sein.`);
+          return;
+        }
+        if (!event.endTime || typeof event.endTime !== 'string' || !timePattern.test(event.endTime)) {
+          alert(`Validierungsfehler im Termin "${eventTitle}": Feld 'endTime' ist erforderlich und muss im Format HH:MM sein.`);
+          return;
+        }
+
+        const eventYear = event.date.substring(0, 4);
+        if (mainYear && eventYear !== mainYear) {
+          warnings.push(`Das Jahr im Termin "${event.title}" (${eventYear}) stimmt nicht mit dem Hauptjahr (${mainYear}) überein.`);
+        }
+        
+        processedEvents.push({
+          ...event,
+          id: event.id || generateEventId(),
+          type: event.type || 'event',
+          description: event.description || '',
+          location: event.location || '',
+          isCollapsed: typeof event.isCollapsed === 'boolean' ? event.isCollapsed : true,
+        });
+      }
+
+      // 3. Validate Exceptional Dates
+      for (let i = 0; i < parsedData.exceptionalDates.length; i++) {
+        const exDate = parsedData.exceptionalDates[i];
+        if (typeof exDate !== 'string' || !datePattern.test(exDate)) {
+          alert(`Validierungsfehler im Ausnahmetag ${i + 1}: Muss ein String im Format JJJJ-MM-TT sein.`);
+          return;
+        }
+        const exDateYear = exDate.substring(0, 4);
+        if (mainYear && exDateYear !== mainYear) {
+          warnings.push(`Das Jahr im Ausnahmetag "${exDate}" (${exDateYear}) stimmt nicht mit dem Hauptjahr (${mainYear}) überein.`);
+        }
+        processedExceptionalDates.push(exDate);
+      }
+
+      // 4. Validate Exceptional Timespans
+      for (let i = 0; i < parsedData.exceptionalTimespans.length; i++) {
+        const ts = parsedData.exceptionalTimespans[i];
+        if (typeof ts !== 'object' || ts === null) {
+            alert(`Validierungsfehler im Ausnahmezeitraum ${i + 1}: Ist kein valides Objekt.`);
+            return;
+        }
+        const tsIdentifier = (ts.start && ts.end) ? `${ts.start} - ${ts.end}` : `Zeitraum ${i + 1}`;
+
+        if (!ts.start || typeof ts.start !== 'string' || !datePattern.test(ts.start)) {
+          alert(`Validierungsfehler im Ausnahmezeitraum "${tsIdentifier}": Feld 'start' ist erforderlich und muss im Format JJJJ-MM-TT sein.`);
+          return;
+        }
+        if (!ts.end || typeof ts.end !== 'string' || !datePattern.test(ts.end)) {
+          alert(`Validierungsfehler im Ausnahmezeitraum "${tsIdentifier}": Feld 'end' ist erforderlich und muss im Format JJJJ-MM-TT sein.`);
+          return;
+        }
+
+        const startYear = ts.start.substring(0, 4);
+        const endYear = ts.end.substring(0, 4);
+        if (mainYear && startYear !== mainYear) {
+          warnings.push(`Das Startjahr im Ausnahmezeitraum "${tsIdentifier}" (${startYear}) stimmt nicht mit dem Hauptjahr (${mainYear}) überein.`);
+        }
+        if (mainYear && endYear !== mainYear) {
+          warnings.push(`Das Endjahr im Ausnahmezeitraum "${tsIdentifier}" (${endYear}) stimmt nicht mit dem Hauptjahr (${mainYear}) überein.`);
+        }
+        
+        processedExceptionalTimespans.push({
+          ...ts,
+          isCollapsed: typeof ts.isCollapsed === 'boolean' ? ts.isCollapsed : true,
+        });
+      }
+
+      // --- End Validation ---
+
+      if (warnings.length > 0) {
+        alert("Warnungen:\n" + warnings.join("\n"));
+      }
+
+      // Update states
+      setEvents(processedEvents);
+      setExceptionalDates(processedExceptionalDates);
+      setExceptionalTimespans(processedExceptionalTimespans);
+      setJsonDataToReview(null);
+
+      // Update main year based on first event if applicable
+      if (processedEvents.length > 0) {
+        const firstEventYear = processedEvents[0].date.substring(0, 4);
+        if (year !== firstEventYear) {
+          // As per simplified rule: if the year state is empty or different from the year of the first event, update.
+          // No confirm() for now, directly updating.
+          setYear(firstEventYear); 
+          alert(`Datei erfolgreich hochgeladen und validiert. Daten wurden in das Formular geladen. Das Hauptjahr wurde auf ${firstEventYear} aktualisiert (basierend auf dem ersten Termin).`);
+        } else {
+          alert("Datei erfolgreich hochgeladen und validiert. Daten wurden in das Formular geladen.");
+        }
+      } else {
+        alert("Datei erfolgreich hochgeladen und validiert. Daten wurden in das Formular geladen.");
+      }
+      setSelectedFile(null); // Reset file input
+      const fileInput = document.getElementById('fileUpload'); // Reset file input visually
+      if (fileInput) fileInput.value = "";
+
+
+    };
+    reader.onerror = (e) => {
+        console.error("FileReader Error:", e);
+        alert("Fehler beim Lesen der Datei.");
+    };
+    reader.readAsText(selectedFile);
+  };
 
   const handleEventInputChange = (index, field, value) => {
     const updatedEvents = [...events];
@@ -195,10 +417,88 @@ const DataEntryPage = () => {
   return (
     <div className="space-y-6 p-2 sm:p-4 md:p-6">
       <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-4 sm:mb-6 text-center">Dateneingabe</h1>
+
+      {/* Load Data Section */}
+      <section className="p-4 sm:p-6 bg-slate-50 dark:bg-slate-800 rounded-lg shadow-md">
+        <div 
+          className="flex justify-between items-center cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700/50 -mx-2 sm:-mx-4 -my-1 sm:-my-2 p-2 sm:p-4 rounded-md" // Adjusted padding/margin for better click area
+          onClick={() => setIsLoadDataSectionCollapsed(!isLoadDataSectionCollapsed)}
+        >
+          <h2 className="text-xl sm:text-2xl font-semibold text-slate-800 dark:text-slate-100">Daten laden</h2>
+          {isLoadDataSectionCollapsed ? <ChevronRight size={24} className="text-slate-500 dark:text-slate-400" /> : <ChevronDown size={24} className="text-slate-500 dark:text-slate-400" />}
+        </div>
+
+        {!isLoadDataSectionCollapsed && (
+          <div className="mt-4 space-y-4">
+            {/* Subsection 1: Load existing year data */}
+            <div className="p-3 sm:p-4 bg-white dark:bg-slate-700/50 rounded-md shadow-sm border border-slate-200 dark:border-slate-700 space-y-3">
+              <h3 className="text-lg font-medium text-slate-700 dark:text-slate-200">Vorhandene Jahresdaten laden</h3>
+              <div>
+                <label htmlFor="loadYear" className={labelClasses}>Jahr auswählen:</label>
+            <select 
+              id="loadYear" 
+              value={loadYearSelect} 
+              onChange={(e) => setLoadYearSelect(e.target.value)} 
+              className={`${inputClasses} mt-1`}
+            >
+              <option value="">-- Jahr wählen --</option>
+              {availableYears.map(y => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
+          </div>
+          <button 
+            type="button" 
+            onClick={handleLoadYearData}
+            className={`${actionButtonClasses} w-full`}
+          >
+            Daten für ausgewähltes Jahr laden
+          </button>
+        </div>
+
+        {/* Subsection 2: Upload appointment file */}
+        <div className="p-3 sm:p-4 bg-white dark:bg-slate-700/50 rounded-md shadow-sm border border-slate-200 dark:border-slate-700 space-y-3">
+          <h3 className="text-lg font-medium text-slate-700 dark:text-slate-200">Termindatei hochladen</h3>
+          <div>
+            <label htmlFor="fileUpload" className={labelClasses}>JSON-Datei auswählen:</label>
+            <input 
+              type="file" 
+              id="fileUpload" 
+              accept=".json" 
+              onChange={(e) => {
+                setSelectedFile(e.target.files[0]);
+                // Reset file input if user selects a file then cancels
+                if (e.target.files.length === 0) {
+                    e.target.value = ""; 
+                }
+              }} 
+              className={`${inputClasses} mt-1 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 dark:file:bg-slate-600 file:text-blue-700 dark:file:text-slate-200 hover:file:bg-blue-100 dark:hover:file:bg-slate-500`}
+            />
+          </div>
+          <button 
+            type="button" 
+            onClick={handleFileUploadAndValidate}
+            className={`${actionButtonClasses} w-full`}
+          >
+            Datei hochladen und validieren
+          </button>
+        </div>
+          </div>
+        )}
+      </section>
+      
       <div className="p-4 sm:p-6 bg-slate-50 dark:bg-slate-800 rounded-lg shadow-md">
-        <label htmlFor="year" className={`${labelClasses} text-md sm:text-lg`}>Jahr:</label>
+        <h2 className="text-xl sm:text-2xl font-semibold text-slate-800 dark:text-slate-100 mb-3">Jahr</h2>
         <p className={`${explanationTextClasses} mt-0 mb-1 text-xs`}>(Jahr für das die Termine gelten)</p>
-        <input type="text" id="year" name="year" placeholder="z.B. 2024" value={year} onChange={handleYearChange} className={`${inputClasses} max-w-full sm:max-w-xs text-md sm:text-lg`} />
+        <input 
+          type="text" 
+          id="year" 
+          name="year" 
+          placeholder="z.B. 2024" 
+          value={year} 
+          onChange={handleYearChange} 
+          className={`${inputClasses} max-w-full sm:max-w-xs text-md sm:text-lg`} 
+        />
       </div>
 
       <section className="p-4 sm:p-6 bg-slate-50 dark:bg-slate-800 rounded-lg shadow-md space-y-4 sm:space-y-6">

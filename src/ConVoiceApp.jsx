@@ -10,6 +10,7 @@ import { downloadICS } from './utils/icsHelper';
 import { generateSampleData } from './utils/dataManager.js'; // Import generateSampleData
 // Removed: import { events as initialEventsData } from './data/events.js';
 import membersListData from './data/members.json';
+import LoginPage from './components/LoginPage';
 import { getYearlyData } from './utils/yearlyDataLoader.js'; // Added import
 import { getInitialTheme, applyTheme } from './utils/theme.js'; // Added theme imports
 import { Toaster } from "sonner";
@@ -24,6 +25,15 @@ const ConVoiceApp = () => {
     const [timeFilter, setTimeFilter] = useState('upcoming');
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
     const [showDataEntryPage, setShowDataEntryPage] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+    const handleLoginSuccess = () => {
+      setIsAuthenticated(true);
+    };
+
+    const handleLogout = () => {
+      setIsAuthenticated(false);
+    };
 
     const handleToggleDataEntryPage = () => {
         setShowDataEntryPage(prev => !prev);
@@ -125,6 +135,10 @@ const ConVoiceApp = () => {
     // Main render logic
     // The ScrollToTopButton is placed outside the conditional rendering of views
     // but inside the main app container so it has access to the app's scroll context.
+    if (!isAuthenticated) {
+        return <LoginPage onLoginSuccess={handleLoginSuccess} />;
+    }
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-gray-900">
             <Header
@@ -136,6 +150,7 @@ const ConVoiceApp = () => {
                 setTheme={setTheme}
                 onToggleDataEntryPage={handleToggleDataEntryPage}
                 isDataEntryPageActive={showDataEntryPage}
+                onLogout={handleLogout}
             />
 
             {showDataEntryPage ? (

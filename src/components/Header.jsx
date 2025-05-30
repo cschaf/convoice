@@ -1,5 +1,5 @@
 import React from 'react';
-import { Music, Menu, Search, Sun, Moon, FilePlus, Calendar } from 'lucide-react';
+import { Music, Menu, Search, Sun, Moon, FilePlus, Calendar, LogOut } from 'lucide-react';
 
 const Header = ({
   searchTerm,
@@ -9,7 +9,8 @@ const Header = ({
   theme,
   setTheme,
   onToggleDataEntryPage,
-  isDataEntryPageActive
+  isDataEntryPageActive,
+  onLogout // Added onLogout prop
 }) => {
   return (
     <header className="bg-white shadow-lg border-b-4 border-amber-400 dark:bg-gray-800 dark:border-amber-600">
@@ -34,6 +35,17 @@ const Header = ({
               >
                 {isDataEntryPageActive ? <Calendar className="w-5 h-5" /> : <FilePlus className="w-5 h-5" />}
                 <span className="hidden sm:inline">{isDataEntryPageActive ? "Kalender" : "Daten verwalten"}</span>
+              </button>
+            )}
+            {/* Logout Button Added Here */}
+            {onLogout && (
+              <button
+                onClick={onLogout}
+                className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors flex items-center space-x-2"
+                title="Logout"
+              >
+                <LogOut className="w-5 h-5" />
+                <span className="hidden sm:inline">Logout</span>
               </button>
             )}
             {!isDataEntryPageActive && (

@@ -9,7 +9,7 @@ import ScrollToTopButton from './components/ScrollToTopButton'; // Import Scroll
 import { downloadICS } from './utils/icsHelper';
 import { generateSampleData } from './utils/dataManager.js'; // Import generateSampleData
 // Removed: import { events as initialEventsData } from './data/events.js';
-import { members as membersListData } from './data/members.js';
+import membersListData from './data/members.json';
 import { getYearlyData } from './utils/yearlyDataLoader.js'; // Added import
 import { getInitialTheme, applyTheme } from './utils/theme.js'; // Added theme imports
 import { Toaster } from "sonner";

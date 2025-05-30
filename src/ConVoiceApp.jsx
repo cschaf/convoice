@@ -12,6 +12,7 @@ import { generateSampleData } from './utils/dataManager.js'; // Import generateS
 import { members as membersListData } from './data/members.js';
 import { getYearlyData } from './utils/yearlyDataLoader.js'; // Added import
 import { getInitialTheme, applyTheme } from './utils/theme.js'; // Added theme imports
+import { Toaster } from "sonner";
 
 const ConVoiceApp = () => {
     const [theme, setTheme] = useState(getInitialTheme());
@@ -198,6 +199,7 @@ const ConVoiceApp = () => {
                 </div>
             )}
             <ScrollToTopButton /> {/* Placed here to be part of the app shell */}
+            <Toaster />
         </div>
     );
 };

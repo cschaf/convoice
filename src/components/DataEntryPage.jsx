@@ -13,6 +13,7 @@ const DataEntryPage = () => {
   const [year, setYear] = useState(currentSystemYear);
   const [loadYearSelect, setLoadYearSelect] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
+  const [isLoadDataSectionCollapsed, setIsLoadDataSectionCollapsed] = useState(true);
   
   const getDefaultDateForYear = () => `${year || currentSystemYear}-01-01`;
 
@@ -416,21 +417,24 @@ const DataEntryPage = () => {
   return (
     <div className="space-y-6 p-2 sm:p-4 md:p-6">
       <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-4 sm:mb-6 text-center">Dateneingabe</h1>
-      <div className="p-4 sm:p-6 bg-slate-50 dark:bg-slate-800 rounded-lg shadow-md">
-        <label htmlFor="year" className={`${labelClasses} text-md sm:text-lg`}>Jahr:</label>
-        <p className={`${explanationTextClasses} mt-0 mb-1 text-xs`}>(Jahr für das die Termine gelten)</p>
-        <input type="text" id="year" name="year" placeholder="z.B. 2024" value={year} onChange={handleYearChange} className={`${inputClasses} max-w-full sm:max-w-xs text-md sm:text-lg`} />
-      </div>
 
       {/* Load Data Section */}
-      <section className="p-4 sm:p-6 bg-slate-50 dark:bg-slate-800 rounded-lg shadow-md space-y-4">
-        <h2 className="text-xl sm:text-2xl font-semibold text-slate-800 dark:text-slate-100 mb-3">Daten laden</h2>
-        
-        {/* Subsection 1: Load existing year data */}
-        <div className="p-3 sm:p-4 bg-white dark:bg-slate-700/50 rounded-md shadow-sm border border-slate-200 dark:border-slate-700 space-y-3">
-          <h3 className="text-lg font-medium text-slate-700 dark:text-slate-200">Vorhandene Jahresdaten laden</h3>
-          <div>
-            <label htmlFor="loadYear" className={labelClasses}>Jahr auswählen:</label>
+      <section className="p-4 sm:p-6 bg-slate-50 dark:bg-slate-800 rounded-lg shadow-md">
+        <div 
+          className="flex justify-between items-center cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700/50 -mx-2 sm:-mx-4 -my-1 sm:-my-2 p-2 sm:p-4 rounded-md" // Adjusted padding/margin for better click area
+          onClick={() => setIsLoadDataSectionCollapsed(!isLoadDataSectionCollapsed)}
+        >
+          <h2 className="text-xl sm:text-2xl font-semibold text-slate-800 dark:text-slate-100">Daten laden</h2>
+          {isLoadDataSectionCollapsed ? <ChevronRight size={24} className="text-slate-500 dark:text-slate-400" /> : <ChevronDown size={24} className="text-slate-500 dark:text-slate-400" />}
+        </div>
+
+        {!isLoadDataSectionCollapsed && (
+          <div className="mt-4 space-y-4">
+            {/* Subsection 1: Load existing year data */}
+            <div className="p-3 sm:p-4 bg-white dark:bg-slate-700/50 rounded-md shadow-sm border border-slate-200 dark:border-slate-700 space-y-3">
+              <h3 className="text-lg font-medium text-slate-700 dark:text-slate-200">Vorhandene Jahresdaten laden</h3>
+              <div>
+                <label htmlFor="loadYear" className={labelClasses}>Jahr auswählen:</label>
             <select 
               id="loadYear" 
               value={loadYearSelect} 
@@ -479,7 +483,15 @@ const DataEntryPage = () => {
             Datei hochladen und validieren
           </button>
         </div>
+          </div>
+        )}
       </section>
+      
+      <div className="p-4 sm:p-6 bg-slate-50 dark:bg-slate-800 rounded-lg shadow-md">
+        <label htmlFor="year" className={`${labelClasses} text-md sm:text-lg`}>Jahr:</label>
+        <p className={`${explanationTextClasses} mt-0 mb-1 text-xs`}>(Jahr für das die Termine gelten)</p>
+        <input type="text" id="year" name="year" placeholder="z.B. 2024" value={year} onChange={handleYearChange} className={`${inputClasses} max-w-full sm:max-w-xs text-md sm:text-lg`} />
+      </div>
 
       <section className="p-4 sm:p-6 bg-slate-50 dark:bg-slate-800 rounded-lg shadow-md space-y-4 sm:space-y-6">
         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 mb-1">

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Music, Menu, Search, Sun, Moon, FilePlus, Calendar, LogOut } from 'lucide-react';
+import { Music, Filter, Menu, Search, Sun, Moon, FilePlus, Calendar, LogOut } from 'lucide-react';
 
 const Header = ({
   searchTerm,
@@ -37,23 +37,24 @@ const Header = ({
                 <span className="hidden sm:inline">{isDataEntryPageActive ? "Kalender" : "Daten verwalten"}</span>
               </button>
             )}
-            {/* Logout Button Added Here */}
-            {onLogout && (
-              <button
-                onClick={onLogout}
-                className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors flex items-center space-x-2"
-                title="Logout"
-              >
-                <LogOut className="w-5 h-5" />
-                <span className="hidden sm:inline">Logout</span>
-              </button>
-            )}
+
             {!isDataEntryPageActive && (
                 <button
                     onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
                     className="lg:hidden p-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600"
                 >
-                    <Menu className="w-6 h-6 text-gray-600 dark:text-gray-300" />
+                    <Filter className="w-6 h-6 text-gray-600 dark:text-gray-300" />
+                </button>
+            )}
+            {/* Logout Button Added Here */}
+            {onLogout && (
+                <button
+                    onClick={onLogout}
+                    className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors flex items-center space-x-2"
+                    title="Logout"
+                >
+                  <LogOut className="w-5 h-5" />
+                  <span className="hidden sm:inline">Logout</span>
                 </button>
             )}
           </div>

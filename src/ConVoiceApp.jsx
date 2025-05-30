@@ -12,6 +12,7 @@ import { generateSampleData } from './utils/dataManager.js'; // Import generateS
 import { members as membersListData } from './data/members.js';
 import { getYearlyData } from './utils/yearlyDataLoader.js'; // Added import
 import { getInitialTheme, applyTheme } from './utils/theme.js'; // Added theme imports
+import { Toaster } from 'react-hot-toast';
 
 const ConVoiceApp = () => {
     const [theme, setTheme] = useState(getInitialTheme());
@@ -126,6 +127,7 @@ const ConVoiceApp = () => {
     // but inside the main app container so it has access to the app's scroll context.
     return (
         <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-gray-900">
+            <Toaster position="top-center" reverseOrder={false} />
             <Header
                 searchTerm={searchTerm}
                 setSearchTerm={setSearchTerm}

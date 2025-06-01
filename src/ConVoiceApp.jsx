@@ -32,7 +32,7 @@ const ConVoiceApp = () => {
     };
 
     const handleLogout = () => {
-      localStorage.removeItem('dummyAuthToken');
+      localStorage.removeItem('authToken');
       setIsAuthenticated(false);
     };
 
@@ -68,7 +68,7 @@ const ConVoiceApp = () => {
     }, [theme]);
 
     useEffect(() => {
-      const token = localStorage.getItem('dummyAuthToken');
+      const token = localStorage.getItem('authToken');
       if (token) {
         handleLoginSuccess();
       }

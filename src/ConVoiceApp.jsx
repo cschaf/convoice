@@ -32,6 +32,7 @@ const ConVoiceApp = () => {
     };
 
     const handleLogout = () => {
+      localStorage.removeItem('dummyAuthToken');
       setIsAuthenticated(false);
     };
 
@@ -65,6 +66,13 @@ const ConVoiceApp = () => {
     useEffect(() => {
         applyTheme(theme);
     }, [theme]);
+
+    useEffect(() => {
+      const token = localStorage.getItem('dummyAuthToken');
+      if (token) {
+        handleLoginSuccess();
+      }
+    }, []); // Empty dependency array ensures this runs only once on mount
 
     useEffect(() => {
         if (!selectedYear || showDataEntryPage) return;

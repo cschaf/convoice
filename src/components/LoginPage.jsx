@@ -13,6 +13,7 @@ const LoginPage = ({ onLoginSuccess }) => {
     if (username === 'Con' && password === 'Voice') {
       if (onLoginSuccess) {
         onLoginSuccess();
+        localStorage.setItem('dummyAuthToken', 'dummyToken');
       }
     } else {
       toast.error('Ungültiger Benutzername oder Passwort.');

@@ -7,7 +7,7 @@ import NextEventHighlight from './components/NextEventHighlight';
 import DataEntryPage from './pages/DataEntryPage';
 import ScrollToTopButton from './components/ScrollToTopButton';
 import { downloadICS } from '../../infrastructure/services/icsHelper';
-import LoginPage from './components/LoginPage';
+import LoginPage from './pages/LoginPage.jsx';
 import { getInitialTheme, applyTheme } from '../theme.js';
 import { Toaster } from "sonner";
 

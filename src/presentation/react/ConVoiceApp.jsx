@@ -15,18 +15,18 @@ import { Toaster } from "sonner";
 // import AppConfig from '../../../domain/entities/AppConfig.js'; // If needed for state type
 
 // Repositories
-import { JsonAppConfigRepository } from '../../../infrastructure/data/JsonAppConfigRepository.js';
-import { JsonMemberRepository } from '../../../infrastructure/data/JsonMemberRepository.js';
-import { JsonYearlyDataRepository } from '../../../infrastructure/data/JsonYearlyDataRepository.js';
+import { JsonAppConfigRepository } from '../../infrastructure/data/JsonAppConfigRepository.js';
+import { JsonMemberRepository } from '../../infrastructure/data/JsonMemberRepository.js';
+import { JsonYearlyDataRepository } from '../../infrastructure/data/JsonYearlyDataRepository.js';
 
 // Domain Services
-import ScheduleGeneratorService from '../../../domain/services/ScheduleGeneratorService.js';
+import ScheduleGeneratorService from '../../domain/services/ScheduleGeneratorService.js';
 
 // Application Use Cases
-import { GetAppConfigUseCase } from '../../../application/usecases/GetAppConfigUseCase.js';
-import { LoadScheduleUseCase } from '../../../application/usecases/LoadScheduleUseCase.js';
-import { LoadAvailableYearsUseCase } from '../../../application/usecases/LoadAvailableYearsUseCase.js';
-import { ManageYearlyDataUseCase } from '../../../application/usecases/ManageYearlyDataUseCase.js';
+import { GetAppConfigUseCase } from '../../application/usecases/GetAppConfigUseCase.js';
+import { LoadScheduleUseCase } from '../../application/usecases/LoadScheduleUseCase.js';
+import { LoadAvailableYearsUseCase } from '../../application/usecases/LoadAvailableYearsUseCase.js';
+import { ManageYearlyDataUseCase } from '../../application/usecases/ManageYearlyDataUseCase.js';
 // YearlyRawData might be needed if ConVoiceApp still constructs it, but ideally LoadScheduleUseCase handles this.
 // import YearlyRawData from '../../../domain/entities/YearlyRawData.js';
 

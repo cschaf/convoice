@@ -1,7 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { generateSampleData } from './dataManager.js';
-// import { events as initialEventsData } from './events.js'; // events.js is deleted
-import { members as membersListData } from '../data/members.js';
+import ScheduleGeneratorService from './ScheduleGeneratorService.js';
+import Event from '../entities/Event.js';
+import Member from '../entities/Member.js';
+import YearlyRawData from '../entities/YearlyRawData.js';
+import { members as rawMembersListData } from '../../data/members.json';
 
 // Helper function to format a Date object to 'YYYY-MM-DD'
 const formatDate = (date) => {
@@ -14,7 +16,7 @@ const formatDate = (date) => {
 // Helper function to get the first Tuesday of a given year
 const getFirstTuesdayOfYear = (year) => {
     const date = new Date(year, 0, 1); // Start with Jan 1st
-    while (date.getDay() !== 2) { // 2 represents Tuesday (0 for Sunday, 1 for Monday, ...)
+    while (date.getDay() !== 2) { // 2 represents Tuesday
         date.setDate(date.getDate() + 1);
     }
     return date;
@@ -59,37 +61,43 @@ const countTuesdaysInRange = (startDate, endDate) => {
     return count;
 };
 
-
-describe('generateSampleData', () => {
+describe('ScheduleGeneratorService', () => {
+    const service = new ScheduleGeneratorService();
     const currentYear = new Date().getFullYear();
-    const mockInitialEvents = []; // Use empty array as events.js was deleted
+
+    // Convert raw members data to Member instances
+    const members = rawMembersListData.map(m => new Member(m.name, m.birthday, m.id));
 
     it('Test Case 1: should skip exceptional dates for choir rehearsals', () => {
-        const firstTuesdayOfMarch = getNthTuesdayOfMonth(currentYear, 2, 1);
+        const firstTuesdayOfMarch = getNthTuesdayOfMonth(currentYear, 2, 1); // March
         expect(firstTuesdayOfMarch).not.toBeNull();
         const exceptionalDateStr = formatDate(firstTuesdayOfMarch);
 
-        const exceptionalDates = [exceptionalDateStr];
-        const data = generateSampleData(mockInitialEvents, membersListData, exceptionalDates, [], currentYear);
+        const yearlyRawData = new YearlyRawData(currentYear, [], [exceptionalDateStr], []);
+
+        const data = service.generateYearlySchedule(yearlyRawData, members, currentYear);
+
         const skippedRehearsal = data.find(item => item.type === 'chorprobe' && item.date === exceptionalDateStr);
         expect(skippedRehearsal).toBeUndefined();
 
         const nextTuesday = addDays(firstTuesdayOfMarch, 7);
         const nextRehearsalDateStr = formatDate(nextTuesday);
         const nextRehearsal = data.find(item => item.type === 'chorprobe' && item.date === nextRehearsalDateStr);
-        expect(nextRehearsal).toBeDefined();
-        expect(nextRehearsal.title).toBe('Chorprobe');
+        expect(nextRehearsal).toBeInstanceOf(Event);
+        if (nextRehearsal) {
+            expect(nextRehearsal.title).toBe('Chorprobe');
+        }
     });
 
     it('Test Case 2: should skip exceptional timespans for choir rehearsals', () => {
-        const firstTuesdayOfApril = getNthTuesdayOfMonth(currentYear, 3, 1);
+        const firstTuesdayOfApril = getNthTuesdayOfMonth(currentYear, 3, 1); // April
         expect(firstTuesdayOfApril).not.toBeNull();
         const timespanStartStr = formatDate(firstTuesdayOfApril);
         const timespanEnd = addDays(firstTuesdayOfApril, 9);
         const timespanEndStr = formatDate(timespanEnd);
 
-        const exceptionalTimespans = [{ start: timespanStartStr, end: timespanEndStr }];
-        const data = generateSampleData(mockInitialEvents, membersListData, [], exceptionalTimespans, currentYear);
+        const yearlyRawData = new YearlyRawData(currentYear, [], [], [{ start: timespanStartStr, end: timespanEndStr }]);
+        const data = service.generateYearlySchedule(yearlyRawData, members, currentYear);
 
         const skippedRehearsal1 = data.find(item => item.type === 'chorprobe' && item.date === timespanStartStr);
         expect(skippedRehearsal1).toBeUndefined();
@@ -108,29 +116,36 @@ describe('generateSampleData', () => {
         }
         const nextRehearsalDateStr = formatDate(nextTuesdayAfterTimespan);
         const nextRehearsal = data.find(item => item.type === 'chorprobe' && item.date === nextRehearsalDateStr);
-        expect(nextRehearsal).toBeDefined();
-        expect(nextRehearsal.title).toBe('Chorprobe');
+        expect(nextRehearsal).toBeInstanceOf(Event);
+        if (nextRehearsal) {
+            expect(nextRehearsal.title).toBe('Chorprobe');
+        }
     });
 
     it('Test Case 3: should generate choir rehearsals by default (no exceptions)', () => {
-        const data = generateSampleData(mockInitialEvents, membersListData, [], [], currentYear);
+        const yearlyRawData = new YearlyRawData(currentYear, [], [], []);
+        const data = service.generateYearlySchedule(yearlyRawData, members, currentYear);
+
         const firstTuesdayOfYearDate = getFirstTuesdayOfYear(currentYear);
         const firstTuesdayDateStr = formatDate(firstTuesdayOfYearDate);
         const firstTuesdayRehearsal = data.find(item => item.type === 'chorprobe' && item.date === firstTuesdayDateStr);
-        expect(firstTuesdayRehearsal).toBeDefined();
-        expect(firstTuesdayRehearsal.title).toBe('Chorprobe');
+        expect(firstTuesdayRehearsal).toBeInstanceOf(Event);
+        if (firstTuesdayRehearsal) {
+            expect(firstTuesdayRehearsal.title).toBe('Chorprobe');
+        }
     });
 
     it('Test Case 4: should skip a defined Sommerferien timespan', () => {
-        const sommerferienStart = new Date(currentYear, 6, 7); // July 7th
+        const sommerferienStart = new Date(currentYear, 6, 7); // July 7th (month is 0-indexed)
         const sommerferienEnd = new Date(currentYear, 6, 29); // July 29th
         const sommerferienTimespan = [{ start: formatDate(sommerferienStart), end: formatDate(sommerferienEnd) }];
         
-        const data = generateSampleData(mockInitialEvents, membersListData, [], sommerferienTimespan, currentYear);
+        const yearlyRawData = new YearlyRawData(currentYear, [], [], sommerferienTimespan);
+        const data = service.generateYearlySchedule(yearlyRawData, members, currentYear);
 
         let currentTestDate = new Date(sommerferienStart);
         while (currentTestDate <= sommerferienEnd) {
-            if (currentTestDate.getDay() === 2) {
+            if (currentTestDate.getDay() === 2) { // Tuesday
                 const dateStr = formatDate(currentTestDate);
                 const skippedRehearsal = data.find(item => item.type === 'chorprobe' && item.date === dateStr);
                 expect(skippedRehearsal, `Rehearsal on ${dateStr} should be skipped`).toBeUndefined();
@@ -138,48 +153,47 @@ describe('generateSampleData', () => {
             currentTestDate.setDate(currentTestDate.getDate() + 1);
         }
 
-        const firstTuesdayOfJuly = getNthTuesdayOfMonth(currentYear, 6, 1);
+        const firstTuesdayOfJuly = getNthTuesdayOfMonth(currentYear, 6, 1); // July
         expect(firstTuesdayOfJuly).not.toBeNull();
         if (firstTuesdayOfJuly < sommerferienStart) {
             const rehearsalBeforeDateStr = formatDate(firstTuesdayOfJuly);
             const rehearsalBeforeVacation = data.find(item => item.type === 'chorprobe' && item.date === rehearsalBeforeDateStr);
-            expect(rehearsalBeforeVacation, `Rehearsal on ${rehearsalBeforeDateStr} should exist`).toBeDefined();
+            expect(rehearsalBeforeVacation, `Rehearsal on ${rehearsalBeforeDateStr} should exist`).toBeInstanceOf(Event);
         }
 
         let firstTuesdayAfterSommerferien = new Date(sommerferienEnd);
         firstTuesdayAfterSommerferien.setDate(firstTuesdayAfterSommerferien.getDate() + 1);
-        while(firstTuesdayAfterSommerferien.getDay() !== 2) {
+        while(firstTuesdayAfterSommerferien.getDay() !== 2) { // Find next Tuesday
             firstTuesdayAfterSommerferien.setDate(firstTuesdayAfterSommerferien.getDate() + 1);
         }
         const rehearsalAfterDateStr = formatDate(firstTuesdayAfterSommerferien);
         const rehearsalAfterVacation = data.find(item => item.type === 'chorprobe' && item.date === rehearsalAfterDateStr);
-        expect(rehearsalAfterVacation, `Rehearsal on ${rehearsalAfterDateStr} should exist`).toBeDefined();
+        expect(rehearsalAfterVacation, `Rehearsal on ${rehearsalAfterDateStr} should exist`).toBeInstanceOf(Event);
     });
 
     describe('DST and Date Generation Logic Tests', () => {
-        // For these tests, allGeneratedData needs to be generated for currentYear
-        // And the specific dates need to be calculated for currentYear.
-        const allGeneratedData = generateSampleData(mockInitialEvents, membersListData, [], [], currentYear);
+        const yearlyRawDataDefault = new YearlyRawData(currentYear, [], [], []);
+        const allGeneratedData = service.generateYearlySchedule(yearlyRawDataDefault, members, currentYear);
         const allChoirProben = allGeneratedData.filter(item => item.type === 'chorprobe');
 
         it('Test Case 5: Consistent Tuesday Generation Across DST', () => {
-            const lastTuesdayMar = getNthTuesdayOfMonth(currentYear, 2, 4) || getNthTuesdayOfMonth(currentYear, 2, 5);
-            const firstTuesdayApr = getNthTuesdayOfMonth(currentYear, 3, 1);
-            const lastTuesdayOct = getNthTuesdayOfMonth(currentYear, 9, 4) || getNthTuesdayOfMonth(currentYear, 9, 5);
-            const firstTuesdayNov = getNthTuesdayOfMonth(currentYear, 10, 1);
+            const lastTuesdayMar = getNthTuesdayOfMonth(currentYear, 2, 4) || getNthTuesdayOfMonth(currentYear, 2, 5); // March
+            const firstTuesdayApr = getNthTuesdayOfMonth(currentYear, 3, 1); // April
+            const lastTuesdayOct = getNthTuesdayOfMonth(currentYear, 9, 4) || getNthTuesdayOfMonth(currentYear, 9, 5); // October
+            const firstTuesdayNov = getNthTuesdayOfMonth(currentYear, 10, 1); // November
 
             const dstTestDates = [
                 lastTuesdayMar ? formatDate(lastTuesdayMar) : null,
                 firstTuesdayApr ? formatDate(firstTuesdayApr) : null,
                 lastTuesdayOct ? formatDate(lastTuesdayOct) : null,
                 firstTuesdayNov ? formatDate(firstTuesdayNov) : null,
-            ].filter(Boolean);
+            ].filter(Boolean); // Remove nulls if a month doesn't have that many Tuesdays
 
-            expect(dstTestDates.length).toBeGreaterThanOrEqual(2);
+            expect(dstTestDates.length).toBeGreaterThanOrEqual(2); // Ensure we have dates to test
 
             dstTestDates.forEach(dateStr => {
                 const rehearsal = allChoirProben.find(item => item.date === dateStr);
-                expect(rehearsal, `Rehearsal on ${dateStr} (around DST) should be defined`).toBeDefined();
+                expect(rehearsal, `Rehearsal on ${dateStr} (around DST) should be defined`).toBeInstanceOf(Event);
                 if (rehearsal) expect(rehearsal.title).toBe('Chorprobe');
             });
         });
@@ -204,13 +218,52 @@ describe('generateSampleData', () => {
             const sommerferienEnd = new Date(currentYear, 6, 29); // July 29th
             
             const sommerferienTimespan = [{ start: formatDate(sommerferienStart), end: formatDate(sommerferienEnd) }];
-            // Generate data specifically for this test's scenario
-            const dataWithSommerferien = generateSampleData(mockInitialEvents, membersListData, [], sommerferienTimespan, currentYear);
+            const yearlyRawDataWithSommerferien = new YearlyRawData(currentYear, [], [], sommerferienTimespan);
+            const dataWithSommerferien = service.generateYearlySchedule(yearlyRawDataWithSommerferien, members, currentYear);
             const choirProbenWithSommerferien = dataWithSommerferien.filter(item => item.type === 'chorprobe');
 
             const expectedRehearsals = tuesdaysInYear - countTuesdaysInRange(sommerferienStart, sommerferienEnd);
             
             expect(choirProbenWithSommerferien.length).toBe(expectedRehearsals);
         });
+
+        it('Test Case 8: Birthday events are generated correctly', () => {
+            const yearlyRawData = new YearlyRawData(currentYear, [], [], []);
+            const schedule = service.generateYearlySchedule(yearlyRawData, members, currentYear);
+            const birthdayEvents = schedule.filter(event => event.type === 'geburtstag');
+
+            expect(birthdayEvents.length).toBe(members.length);
+            members.forEach(member => {
+                const memberBirthMonthDay = member.getBirthMonthDay();
+                const expectedBirthdayDate = `${currentYear}-${memberBirthMonthDay}`;
+                const eventForMember = birthdayEvents.find(event => event.memberName === member.name && event.date === expectedBirthdayDate);
+                expect(eventForMember).toBeInstanceOf(Event);
+                if(eventForMember) {
+                    expect(eventForMember.title).toBe(`Geburtstag ${member.name}`);
+                }
+            });
+        });
+
+        it('Test Case 9: Initial events are included and are Event instances', () => {
+            const rawInitialEvent = {
+                id: "initEvent1",
+                title: "Initial Test Event",
+                date: `${currentYear}-01-15`,
+                startTime: "10:00",
+                endTime: "11:00",
+                type: "event",
+                description: "A predefined event."
+            };
+            const yearlyRawDataWithInitial = new YearlyRawData(currentYear, [rawInitialEvent], [], []);
+            const schedule = service.generateYearlySchedule(yearlyRawDataWithInitial, members, currentYear);
+
+            const initialEventInSchedule = schedule.find(event => event.id === "initEvent1");
+            expect(initialEventInSchedule).toBeInstanceOf(Event);
+            if (initialEventInSchedule) {
+                expect(initialEventInSchedule.title).toBe("Initial Test Event");
+                expect(initialEventInSchedule.description).toBe("A predefined event.");
+            }
+        });
+
     });
 });

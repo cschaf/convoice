@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, Trash2, ChevronDown, ChevronRight, Info } from 'lucide-react';
 import { toast } from 'sonner';
-import ScrollToTopButton from './ScrollToTopButton'; // Import the ScrollToTopButton
-import { getYearlyData } from '../utils/yearlyDataLoader.js';
-import config from '../data/config.json';
+import ScrollToTopButton from '../components/ScrollToTopButton'; // Import the ScrollToTopButton
+import { getYearlyData } from '../../../infrastructure/data/yearlyDataLoader.js';
+import config from '../../../data/config.json';
 
 const { availableYears } = config;
 

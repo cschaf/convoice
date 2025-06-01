@@ -4,23 +4,57 @@ import Header from './components/Header';
 import FilterSidebar from './components/FilterSidebar';
 import EventCard from './components/EventCard';
 import NextEventHighlight from './components/NextEventHighlight';
-import DataEntryPage from './components/DataEntryPage';
-import ScrollToTopButton from './components/ScrollToTopButton'; // Import ScrollToTopButton
-import { downloadICS } from './utils/icsHelper';
-import { generateSampleData } from './utils/dataManager.js'; // Import generateSampleData
-// Removed: import { events as initialEventsData } from './data/events.js';
-import membersListData from './data/members.json';
+import DataEntryPage from './pages/DataEntryPage';
+import ScrollToTopButton from './components/ScrollToTopButton';
+import { downloadICS } from '../../infrastructure/services/icsHelper';
 import LoginPage from './components/LoginPage';
-import { getYearlyData } from './utils/yearlyDataLoader.js'; // Added import
-import { getInitialTheme, applyTheme } from './utils/theme.js'; // Added theme imports
+import { getInitialTheme, applyTheme } from '../theme.js';
 import { Toaster } from "sonner";
+
+// Domain Entities (AppConfig might be useful for initial state type)
+// import AppConfig from '../../../domain/entities/AppConfig.js'; // If needed for state type
+
+// Repositories
+import { JsonAppConfigRepository } from '../../../infrastructure/data/JsonAppConfigRepository.js';
+import { JsonMemberRepository } from '../../../infrastructure/data/JsonMemberRepository.js';
+import { JsonYearlyDataRepository } from '../../../infrastructure/data/JsonYearlyDataRepository.js';
+
+// Domain Services
+import ScheduleGeneratorService from '../../../domain/services/ScheduleGeneratorService.js';
+
+// Application Use Cases
+import { GetAppConfigUseCase } from '../../../application/usecases/GetAppConfigUseCase.js';
+import { LoadScheduleUseCase } from '../../../application/usecases/LoadScheduleUseCase.js';
+import { LoadAvailableYearsUseCase } from '../../../application/usecases/LoadAvailableYearsUseCase.js';
+// YearlyRawData might be needed if ConVoiceApp still constructs it, but ideally LoadScheduleUseCase handles this.
+// import YearlyRawData from '../../../domain/entities/YearlyRawData.js';
+
+
+// Instantiate dependencies
+// These instances are created once when the App component module is loaded.
+// They don't depend on component state/props for their own instantiation.
+const jsonAppConfigRepository = new JsonAppConfigRepository();
+const jsonMemberRepository = new JsonMemberRepository();
+const jsonYearlyDataRepository = new JsonYearlyDataRepository();
+const scheduleGeneratorService = new ScheduleGeneratorService();
+
+const getAppConfigUseCase = new GetAppConfigUseCase(jsonAppConfigRepository);
+const loadScheduleUseCase = new LoadScheduleUseCase(jsonYearlyDataRepository, jsonMemberRepository, scheduleGeneratorService);
+// For available years, we can either use AppConfig or directly from YearlyDataRepository if that's the source of truth for displayed years.
+// The old code used config.json's availableYears, which JsonAppConfigRepository provides via AppConfig entity.
+// However, LoadAvailableYearsUseCase is also provided, which uses IYearlyDataRepository.getAvailableYears().
+// Let's assume for now that available years for selection should come from where data actually exists, so IYearlyDataRepository.
+const loadAvailableYearsUseCase = new LoadAvailableYearsUseCase(jsonYearlyDataRepository);
+
 
 const ConVoiceApp = () => {
     const [theme, setTheme] = useState(getInitialTheme());
-    const [allTermine, setAllTermine] = useState([]);
+    const [allTermine, setAllTermine] = useState([]); // Will hold Event instances
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedYear, setSelectedYear] = useState(null);
     const [availableYears, setAvailableYears] = useState([]);
+    // const [appConfig, setAppConfig] = useState(null); // Optional: if you want to store the full AppConfig entity
+
     const [typeFilter, setTypeFilter] = useState('all');
     const [timeFilter, setTimeFilter] = useState('upcoming');
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
@@ -40,27 +74,36 @@ const ConVoiceApp = () => {
         setShowDataEntryPage(prev => !prev);
     };
 
+    // Effect for loading available years and setting initial selected year
     useEffect(() => {
-        const loadAppConfig = async () => {
+        const fetchInitialConfig = async () => {
             try {
-                const configModule = await import('./data/config.json');
-                const config = configModule.default || configModule;
-                setAvailableYears(config.availableYears);
+                // Option 1: Use LoadAvailableYearsUseCase (if years come from data files presence)
+                const years = await loadAvailableYearsUseCase.execute();
+
+                // Option 2: Use GetAppConfigUseCase (if years come from a central config defined in AppConfig)
+                // const currentAppConfig = await getAppConfigUseCase.execute();
+                // setAppConfig(currentAppConfig); // if you need the full config object
+                // const years = currentAppConfig.availableYears;
+
+                setAvailableYears(years || []);
+
                 const actualCurrentYear = new Date().getFullYear();
-                if (config.availableYears.includes(actualCurrentYear)) {
+                if (years && years.includes(actualCurrentYear)) {
                     setSelectedYear(actualCurrentYear);
-                } else if (config.availableYears.length > 0) {
-                    setSelectedYear(config.availableYears[0]);
+                } else if (years && years.length > 0) {
+                    // Default to the latest available year if current year is not in the list
+                     setSelectedYear(Math.max(...years)); // or years[0] if sorted ascending and want earliest
                 } else {
-                    setSelectedYear(actualCurrentYear);
+                    setSelectedYear(actualCurrentYear); // Fallback if no years available
                 }
             } catch (error) {
-                console.error("Fehler beim Laden der App-Konfiguration via Import:", error);
-                setAvailableYears([new Date().getFullYear()]);
-                setSelectedYear(new Date().getFullYear());
+                console.error("Error loading application configuration:", error);
+                setAvailableYears([new Date().getFullYear()]); // Fallback
+                setSelectedYear(new Date().getFullYear()); // Fallback
             }
         };
-        loadAppConfig();
+        fetchInitialConfig();
     }, []);
 
     useEffect(() => {
@@ -72,28 +115,26 @@ const ConVoiceApp = () => {
       if (token) {
         handleLoginSuccess();
       }
-    }, []); // Empty dependency array ensures this runs only once on mount
+    }, []);
 
+    // Effect for loading schedule data when selectedYear changes
     useEffect(() => {
-        if (!selectedYear || showDataEntryPage) return;
+        if (!selectedYear || showDataEntryPage) {
+            if (showDataEntryPage) setAllTermine([]); // Clear schedule if navigating to data entry
+            return;
+        }
 
         const loadData = async () => {
-            const currentYearData = await getYearlyData(selectedYear);
-            const previousYearData = await getYearlyData(selectedYear - 1);
-            const initialEvents = currentYearData.events;
-            const combinedExceptionalDates = currentYearData.exceptionalDates;
-            const combinedExceptionalTimespans = [
-                ...(previousYearData.exceptionalTimespans || []),
-                ...(currentYearData.exceptionalTimespans || [])
-            ];
-            const data = generateSampleData(
-                initialEvents,
-                membersListData,
-                combinedExceptionalDates,
-                combinedExceptionalTimespans,
-                selectedYear
-            );
-            setAllTermine(data);
+            try {
+                // LoadScheduleUseCase is now responsible for fetching all necessary data,
+                // including handling previous year's exceptional timespans if it's refactored to do so.
+                // For this subtask, we assume it correctly returns the schedule for 'selectedYear'.
+                const scheduleEvents = await loadScheduleUseCase.execute(selectedYear);
+                setAllTermine(scheduleEvents || []);
+            } catch (error) {
+                console.error(`Error loading schedule for year ${selectedYear}:`, error);
+                setAllTermine([]); // Set to empty on error
+            }
         };
         loadData();
     }, [selectedYear, showDataEntryPage]);
@@ -101,12 +142,16 @@ const ConVoiceApp = () => {
     const filteredTermine = useMemo(() => {
         if (showDataEntryPage) return [];
         const now = new Date();
+        // Ensure correct date comparison: dates from Event entities are 'YYYY-MM-DD' strings
         const today = now.toISOString().split('T')[0];
+
         return allTermine.filter(termin => {
+            // termin is now an Event instance
             if (searchTerm && !termin.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
                 !termin.date.includes(searchTerm)) {
                 return false;
             }
+            // selectedYear is a number, termin.date is 'YYYY-MM-DD'
             if (selectedYear && !termin.date.startsWith(selectedYear.toString())) {
                 return false;
             }
@@ -121,17 +166,21 @@ const ConVoiceApp = () => {
     }, [allTermine, searchTerm, selectedYear, typeFilter, timeFilter, showDataEntryPage]);
 
     const nextDayEvents = useMemo(() => {
-        if (showDataEntryPage || allTermine.length === 0) return null; // Return null if no events or in data entry
+        if (showDataEntryPage || allTermine.length === 0) return null;
 
         const now = new Date();
         const today = now.toISOString().split('T')[0];
 
         const upcomingTermine = allTermine
             .filter(termin => termin.date >= today)
-            .sort((a, b) => a.date.localeCompare(b.date)); // Sort by date to find the soonest
+            .sort((a, b) => { // Sort by date, then by startTime
+                const dateComparison = a.date.localeCompare(b.date);
+                if (dateComparison !== 0) return dateComparison;
+                return (a.startTime || '').localeCompare(b.startTime || '');
+            });
 
         if (upcomingTermine.length === 0) {
-            return null; // No upcoming events
+            return null;
         }
 
         const soonestDate = upcomingTermine[0].date;
@@ -139,13 +188,6 @@ const ConVoiceApp = () => {
 
         return eventsOnSoonestDate.length > 0 ? eventsOnSoonestDate : null;
     }, [allTermine, showDataEntryPage]);
-
-    // Main render logic
-    // The ScrollToTopButton is placed outside the conditional rendering of views
-    // but inside the main app container so it has access to the app's scroll context.
-    // if (!isAuthenticated) {
-    //     return <LoginPage onLoginSuccess={handleLoginSuccess} />;
-    // }
 
     return (
       <>
@@ -166,8 +208,8 @@ const ConVoiceApp = () => {
             />
 
             {showDataEntryPage ? (
-                 <div className="max-w-4xl mx-auto mt-8 p-4 sm:p-6 bg-white dark:bg-gray-800 shadow-xl rounded-lg"> {/* Adjusted padding for DataEntryPage container */}
-                    <DataEntryPage />
+                 <div className="max-w-4xl mx-auto mt-8 p-4 sm:p-6 bg-white dark:bg-gray-800 shadow-xl rounded-lg">
+                    <DataEntryPage /> {/* DataEntryPage will need its own refactoring for use cases */}
                     <button
                         onClick={handleToggleDataEntryPage}
                         className="mt-8 px-4 py-2 bg-amber-500 text-white rounded hover:bg-amber-600 transition-colors"
@@ -194,7 +236,7 @@ const ConVoiceApp = () => {
                             {nextDayEvents && nextDayEvents.length > 0 && timeFilter === 'upcoming' && (
                                 <NextEventHighlight
                                     nextEvents={nextDayEvents}
-                                    onDownloadICS={downloadICS}
+                                    onDownloadICS={downloadICS} // downloadICS from icsHelper is fine
                                 />
                             )}
                             <div>
@@ -213,8 +255,8 @@ const ConVoiceApp = () => {
                                             .filter(termin => timeFilter !== 'upcoming' || !nextDayEvents || !nextDayEvents.find(ne => ne.id === termin.id))
                                             .map((termin) => (
                                                 <EventCard
-                                                    key={termin.id}
-                                                    termin={termin}
+                                                    key={termin.id} // Event instances should have unique IDs
+                                                    termin={termin} // Pass Event instance
                                                     onDownloadICS={downloadICS}
                                                 />
                                             ))}
@@ -225,10 +267,10 @@ const ConVoiceApp = () => {
                     </div>
                 </div>
             )}
-            <ScrollToTopButton /> {/* Placed here to be part of the app shell */}
+            <ScrollToTopButton />
           </div>
         )}
-        <Toaster /> {/* Moved Toaster here so it's always present */}
+        <Toaster />
       </>
     );
 };

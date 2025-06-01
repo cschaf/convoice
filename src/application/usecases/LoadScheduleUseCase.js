@@ -1,7 +1,7 @@
 // src/application/usecases/LoadScheduleUseCase.js
 import Event from '../../domain/entities/Event.js';
+import YearlyRawData from '../../domain/entities/YearlyRawData.js'; // Needed for instantiation
 // IYearlyDataRepository, IMemberRepository, ScheduleGeneratorService will be injected.
-// ScheduleGeneratorService is expected to be found at '../../domain/services/ScheduleGeneratorService.js'
 
 export class LoadScheduleUseCase {
     /**
@@ -34,18 +34,34 @@ export class LoadScheduleUseCase {
             throw new Error("LoadScheduleUseCase: Year must be an integer number.");
         }
 
-        const yearlyRawData = await this.yearlyDataRepository.getYearlyData(year);
+        const currentYearRawData = await this.yearlyDataRepository.getYearlyData(year);
 
-        if (!yearlyRawData) {
-            // Or handle this more gracefully, maybe return empty array or throw specific error
+        if (!currentYearRawData) {
             console.warn(`LoadScheduleUseCase: No data found for year ${year}. Returning empty schedule.`);
             return [];
         }
 
+        const previousYearRawData = await this.yearlyDataRepository.getYearlyData(year - 1);
+
+        let combinedExceptionalTimespans = [...(currentYearRawData.exceptionalTimespans || [])];
+
+        if (previousYearRawData && previousYearRawData.exceptionalTimespans && Array.isArray(previousYearRawData.exceptionalTimespans)) {
+          combinedExceptionalTimespans = [
+            ...previousYearRawData.exceptionalTimespans,
+            ...combinedExceptionalTimespans // Current year's timespans come after previous year's
+          ];
+        }
+
+        // Create an effective YearlyRawData for the generator, using the combined timespans
+        const effectiveYearlyData = new YearlyRawData(
+          currentYearRawData.year, // Should be the target 'year'
+          currentYearRawData.events,
+          currentYearRawData.exceptionalDates,
+          combinedExceptionalTimespans // Use the merged list
+        );
+
         const members = await this.memberRepository.getAllMembers();
 
-        // Assuming generateYearlySchedule expects the targetYear explicitly
-        // and YearlyRawData might not internally hold the year or it might be for cross-year checks.
-        return this.scheduleGeneratorService.generateYearlySchedule(yearlyRawData, members, year);
+        return this.scheduleGeneratorService.generateYearlySchedule(effectiveYearlyData, members, year);
     }
 }

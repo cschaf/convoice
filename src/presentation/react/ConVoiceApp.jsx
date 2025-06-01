@@ -26,6 +26,7 @@ import ScheduleGeneratorService from '../../../domain/services/ScheduleGenerator
 import { GetAppConfigUseCase } from '../../../application/usecases/GetAppConfigUseCase.js';
 import { LoadScheduleUseCase } from '../../../application/usecases/LoadScheduleUseCase.js';
 import { LoadAvailableYearsUseCase } from '../../../application/usecases/LoadAvailableYearsUseCase.js';
+import { ManageYearlyDataUseCase } from '../../../application/usecases/ManageYearlyDataUseCase.js';
 // YearlyRawData might be needed if ConVoiceApp still constructs it, but ideally LoadScheduleUseCase handles this.
 // import YearlyRawData from '../../../domain/entities/YearlyRawData.js';
 
@@ -45,6 +46,7 @@ const loadScheduleUseCase = new LoadScheduleUseCase(jsonYearlyDataRepository, js
 // However, LoadAvailableYearsUseCase is also provided, which uses IYearlyDataRepository.getAvailableYears().
 // Let's assume for now that available years for selection should come from where data actually exists, so IYearlyDataRepository.
 const loadAvailableYearsUseCase = new LoadAvailableYearsUseCase(jsonYearlyDataRepository);
+const manageYearlyDataUseCase = new ManageYearlyDataUseCase(jsonYearlyDataRepository);
 
 
 const ConVoiceApp = () => {
@@ -209,7 +211,10 @@ const ConVoiceApp = () => {
 
             {showDataEntryPage ? (
                  <div className="max-w-4xl mx-auto mt-8 p-4 sm:p-6 bg-white dark:bg-gray-800 shadow-xl rounded-lg">
-                    <DataEntryPage /> {/* DataEntryPage will need its own refactoring for use cases */}
+                    <DataEntryPage
+                        manageYearlyDataUseCase={manageYearlyDataUseCase}
+                        availableYears={availableYears}
+                    />
                     <button
                         onClick={handleToggleDataEntryPage}
                         className="mt-8 px-4 py-2 bg-amber-500 text-white rounded hover:bg-amber-600 transition-colors"

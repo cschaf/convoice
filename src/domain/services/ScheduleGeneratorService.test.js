@@ -67,6 +67,7 @@ describe('ScheduleGeneratorService', () => {
 
     // Convert raw members data to Member instances
     const members = rawMembersListData.map(m => new Member(m.name, m.birthday, m.id));
+    const emptyMembers = [];
 
     it('Test Case 1: should skip exceptional dates for choir rehearsals', () => {
         const firstTuesdayOfMarch = getNthTuesdayOfMonth(currentYear, 2, 1); // March
@@ -170,6 +171,50 @@ describe('ScheduleGeneratorService', () => {
         const rehearsalAfterVacation = data.find(item => item.type === 'chorprobe' && item.date === rehearsalAfterDateStr);
         expect(rehearsalAfterVacation, `Rehearsal on ${rehearsalAfterDateStr} should exist`).toBeInstanceOf(Event);
     });
+
+    it('Test Case 10: should not generate choir rehearsal if a manually scheduled event exists on that Tuesday', () => {
+        const firstTuesdayOfMay = getNthTuesdayOfMonth(currentYear, 4, 1); // May
+        expect(firstTuesdayOfMay).not.toBeNull();
+        const conflictingEventDateStr = formatDate(firstTuesdayOfMay);
+
+        const initialEventsData = [{
+            id: "manualEvent1",
+            title: "Manual Event on a Tuesday",
+            date: conflictingEventDateStr,
+            startTime: "18:00",
+            endTime: "20:00",
+            type: "event"
+        }];
+        const yearlyRawData = new YearlyRawData(currentYear, initialEventsData, [], []);
+        const data = service.generateYearlySchedule(yearlyRawData, members, currentYear);
+
+        const conflictingRehearsal = data.find(item => item.type === 'chorprobe' && item.date === conflictingEventDateStr);
+        expect(conflictingRehearsal).toBeUndefined();
+
+        const manualEvent = data.find(item => item.id === "manualEvent1");
+        expect(manualEvent).toBeInstanceOf(Event);
+        expect(manualEvent.title).toBe("Manual Event on a Tuesday");
+    });
+
+    it('Test Case 11: should handle empty members list gracefully (no birthday events)', () => {
+        const yearlyRawData = new YearlyRawData(currentYear, [], [], []);
+        const data = service.generateYearlySchedule(yearlyRawData, emptyMembers, currentYear);
+        const birthdayEvents = data.filter(event => event.type === 'geburtstag');
+        expect(birthdayEvents.length).toBe(0);
+        // Check if choir rehearsals are still generated
+        const firstTuesdayRehearsal = data.find(item => item.type === 'chorprobe' && item.date === formatDate(getFirstTuesdayOfYear(currentYear)));
+        expect(firstTuesdayRehearsal).toBeInstanceOf(Event);
+    });
+
+    it('Test Case 12: all returned items should be instances of Event', () => {
+        const yearlyRawData = new YearlyRawData(currentYear, [{
+            id: "test-event", title: "Test", date: `${currentYear}-07-01`, startTime: "10:00", endTime: "11:00", type: "event"
+        }], [], []);
+        const data = service.generateYearlySchedule(yearlyRawData, members, currentYear);
+        expect(data.length).toBeGreaterThan(0); // Ensure there's data to check
+        data.forEach(item => expect(item).toBeInstanceOf(Event));
+    });
+
 
     describe('DST and Date Generation Logic Tests', () => {
         const yearlyRawDataDefault = new YearlyRawData(currentYear, [], [], []);

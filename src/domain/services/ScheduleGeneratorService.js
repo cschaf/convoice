@@ -8,9 +8,10 @@ class ScheduleGeneratorService {
      * @param {YearlyRawData} yearlyRawData - An instance of YearlyRawData containing initial events, exceptional dates, and timespans.
      * @param {Member[]} members - An array of Member instances.
      * @param {number} targetYear - The specific year for which to generate the schedule.
+     * @param {Object[]} [rehearsalConfigs=[]] - An array of rehearsal configuration objects.
      * @returns {Event[]} An array of Event entity instances, sorted by date.
      */
-    generateYearlySchedule(yearlyRawData, members, targetYear) {
+    generateYearlySchedule(yearlyRawData, members, targetYear, rehearsalConfigs = []) {
         if (!(yearlyRawData instanceof YearlyRawData)) {
             console.warn("generateYearlySchedule: yearlyRawData is not an instance of YearlyRawData. Ensure data is structured correctly.");
             // Potentially transform plain object to YearlyRawData instance here if desired
@@ -21,6 +22,10 @@ class ScheduleGeneratorService {
         }
         if (typeof targetYear !== 'number') {
             throw new Error("Target year must be a number.");
+        }
+        if (!Array.isArray(rehearsalConfigs)) {
+            console.warn("generateYearlySchedule: rehearsalConfigs is not an array. Skipping rehearsal generation.");
+            rehearsalConfigs = []; // Ensure it's an array to prevent errors later
         }
 
         const yearToProcess = targetYear;
@@ -55,60 +60,70 @@ class ScheduleGeneratorService {
             );
         });
 
-        const chorproben = [];
-        // Use exceptional dates and timespans from yearlyRawData
-        const exceptionalDates = yearlyRawData.exceptionalDates;
-        const exceptionalTimespans = yearlyRawData.exceptionalTimespans;
+        const generatedRehearsals = [];
+        const exceptionalDates = yearlyRawData.exceptionalDates || [];
+        const exceptionalTimespans = yearlyRawData.exceptionalTimespans || [];
+        const initialEventDates = initialEvents.map(e => e.date); // For quick lookup if needed, though not explicitly used in provided logic for rehearsal collision
 
-        const eventDates = initialEvents.map(e => e.date); // Dates of manually scheduled events
-
-        let currentDate = new Date(yearToProcess, 0, 1, 19, 0, 0); // Start with Jan 1st of yearToProcess
-        while (currentDate.getDay() !== 2) { // 0 = Sunday, ..., 2 = Tuesday
-            currentDate.setDate(currentDate.getDate() + 1);
-        }
-
-        const lastDateOfYear = new Date(yearToProcess, 11, 31);
-
-        while (currentDate <= lastDateOfYear) {
-            const year = currentDate.getFullYear();
-            // Ensure we are still in the target year, especially if loop continues slightly past due to date manipulations
-            if (year !== yearToProcess) {
-                currentDate.setDate(currentDate.getDate() + 7);
-                continue;
+        rehearsalConfigs.forEach(config => {
+            // Basic validation for a single config item
+            if (!config || typeof config.dayOfWeek !== 'number' || !config.startTime || !config.endTime || !config.id || !config.title) {
+                console.warn(`Skipping invalid rehearsal config: ${JSON.stringify(config)}`);
+                return;
+            }
+            
+            let currentDate = new Date(yearToProcess, 0, 1); // Start at Jan 1st of the target year
+            
+            // Find the first occurrence of config.dayOfWeek
+            while (currentDate.getDay() !== config.dayOfWeek) {
+                currentDate.setDate(currentDate.getDate() + 1);
+                // Ensure we don't overshoot into the next year during this initial search
+                if (currentDate.getFullYear() !== yearToProcess) {
+                    return; // This dayOfWeek doesn't occur in this year starting from Jan 1st.
+                }
             }
 
-            const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
-            const day = currentDate.getDate().toString().padStart(2, '0');
-            const dateStr = `${year}-${month}-${day}`;
+            const lastDateOfYear = new Date(yearToProcess, 11, 31);
 
-            const hasManuallyScheduledEvent = eventDates.includes(dateStr);
-            const isExceptionalDate = exceptionalDates.includes(dateStr);
+            while (currentDate <= lastDateOfYear && currentDate.getFullYear() === yearToProcess) {
+                const year = currentDate.getFullYear();
+                const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+                const day = currentDate.getDate().toString().padStart(2, '0');
+                const dateStr = `${year}-${month}-${day}`;
 
-            const currentCheckDateForTimespan = new Date(year, currentDate.getMonth(), day); // Date object for comparison
-            const isInExceptionalTimespan = exceptionalTimespans.some(span => {
-                const spanStart = new Date(span.start);
-                const spanEnd = new Date(span.end);
-                return currentCheckDateForTimespan >= spanStart && currentCheckDateForTimespan <= spanEnd;
-            });
+                // Check for exceptions
+                const isExceptionalDate = exceptionalDates.includes(dateStr);
+                
+                // Create a date object for the current rehearsal's date part only for timespan check
+                const currentRehearsalDateOnly = new Date(year, currentDate.getMonth(), day);
+                const isInExceptionalTimespan = exceptionalTimespans.some(span => {
+                    // Ensure span.start and span.end are valid date strings before creating Date objects
+                    if (!span || !span.start || !span.end) return false;
+                    const spanStart = new Date(span.start);
+                    const spanEnd = new Date(span.end);
+                    // Normalize spanStart and spanEnd to ignore time components for date-only comparison
+                    spanStart.setHours(0,0,0,0);
+                    spanEnd.setHours(0,0,0,0);
+                    return currentRehearsalDateOnly >= spanStart && currentRehearsalDateOnly <= spanEnd;
+                });
 
-            if (!hasManuallyScheduledEvent && !isExceptionalDate && !isInExceptionalTimespan) {
-                chorproben.push(new Event(
-                    `p-${dateStr}`,
-                    'Chorprobe',
-                    dateStr,
-                    '19:00',
-                    '20:30',
-                    'chorprobe',
-                    'Wöchentliche Chorprobe',
-                    'Gemeindehaus Woltershausen'
-                ));
+                if (!isExceptionalDate && !isInExceptionalTimespan) {
+                    generatedRehearsals.push(new Event(
+                        `cfg-${config.id}-${dateStr}`,
+                        config.title,
+                        dateStr,
+                        config.startTime,
+                        config.endTime,
+                        `rehearsal-${config.id}`, // Event type based on config id
+                        config.description || '', // Default to empty string if no description
+                        config.defaultLocation || '' // Default to empty string if no location
+                    ));
+                }
+                currentDate.setDate(currentDate.getDate() + 7); // Move to the next week
             }
+        });
 
-            currentDate.setDate(currentDate.getDate() + 7);
-        }
-
-        return [...initialEvents, ...birthdays, ...chorproben].sort((a, b) => {
-            // Sort by date, then by start time
+        return [...initialEvents, ...birthdays, ...generatedRehearsals].sort((a, b) => {
             const dateComparison = new Date(a.date) - new Date(b.date);
             if (dateComparison !== 0) {
                 return dateComparison;

@@ -15,6 +15,13 @@ const mockMemberRepository = {
 const scheduleGeneratorService = new ScheduleGeneratorService();
 vi.spyOn(scheduleGeneratorService, 'generateYearlySchedule');
 
+const mockAppConfigRepository = {
+  getRehearsalSettings: vi.fn(),
+};
+
+const sampleRehearsalConfigs = [
+  { id: 'rehearsal1', title: 'Choir Rehearsal', dayOfWeek: 2, startTime: '19:00', endTime: '20:30', frequency: 'weekly', defaultLocation: 'Community Hall' }
+];
 
 describe('LoadScheduleUseCase', () => {
   let loadScheduleUseCase;
@@ -26,14 +33,23 @@ describe('LoadScheduleUseCase', () => {
     // However, typically spies on object methods are restored unless the object itself is changed.
     // If issues occur, re-spy here: vi.spyOn(scheduleGeneratorService, 'generateYearlySchedule');
 
+    // Reset mocks before each test
+    vi.resetAllMocks(); 
+    // Re-spy on generateYearlySchedule as resetAllMocks clears spies too
+    vi.spyOn(scheduleGeneratorService, 'generateYearlySchedule'); 
+    // Mock default return values for repositories
+    mockAppConfigRepository.getRehearsalSettings.mockResolvedValue(sampleRehearsalConfigs);
+
+
     loadScheduleUseCase = new LoadScheduleUseCase(
       mockYearlyDataRepository,
       mockMemberRepository,
-      scheduleGeneratorService
+      scheduleGeneratorService,
+      mockAppConfigRepository
     );
   });
 
-  it('should successfully load schedule, merging previous year timespans', async () => {
+  it('should successfully load schedule, merging previous year timespans and passing rehearsal configs', async () => {
     const currentYearTimespan = { start: `${testYear}-01-01`, end: `${testYear}-01-02`, description: "Current Year Span" };
     const prevYearTimespan = { start: `${testYear - 1}-12-30`, end: `${testYear - 1}-12-31`, description: "Previous Year Span" };
 
@@ -54,6 +70,7 @@ describe('LoadScheduleUseCase', () => {
     expect(mockYearlyDataRepository.getYearlyData).toHaveBeenCalledWith(testYear);
     expect(mockYearlyDataRepository.getYearlyData).toHaveBeenCalledWith(testYear - 1);
     expect(mockMemberRepository.getAllMembers).toHaveBeenCalled();
+    expect(mockAppConfigRepository.getRehearsalSettings).toHaveBeenCalled();
 
     const expectedCombinedTimespans = [prevYearTimespan, currentYearTimespan];
     const expectedEffectiveYearlyData = new YearlyRawData(
@@ -71,7 +88,8 @@ describe('LoadScheduleUseCase', () => {
         exceptionalTimespans: expectedCombinedTimespans,
       }),
       mockMembers,
-      testYear
+      testYear,
+      sampleRehearsalConfigs // Added rehearsalConfigs
     );
 
     expect(result).toBeInstanceOf(Array);
@@ -112,6 +130,7 @@ describe('LoadScheduleUseCase', () => {
     expect(mockYearlyDataRepository.getYearlyData).toHaveBeenCalledWith(testYear);
     expect(mockYearlyDataRepository.getYearlyData).toHaveBeenCalledWith(testYear - 1);
     expect(mockMemberRepository.getAllMembers).toHaveBeenCalled();
+    expect(mockAppConfigRepository.getRehearsalSettings).toHaveBeenCalled(); // Also called here
 
     // Expect service to be called with only current year's timespans
     expect(scheduleGeneratorService.generateYearlySchedule).toHaveBeenCalledWith(
@@ -119,7 +138,8 @@ describe('LoadScheduleUseCase', () => {
         exceptionalTimespans: [currentYearTimespan],
       }),
       mockMembers,
-      testYear
+      testYear,
+      sampleRehearsalConfigs // Added rehearsalConfigs
     );
   });
 
@@ -138,7 +158,8 @@ describe('LoadScheduleUseCase', () => {
     expect(scheduleGeneratorService.generateYearlySchedule).toHaveBeenCalledWith(
       expect.anything(), // We care more about the members array in this test
       [], // Expect empty array for members
-      testYear
+      testYear,
+      sampleRehearsalConfigs // Added rehearsalConfigs
     );
   });
 

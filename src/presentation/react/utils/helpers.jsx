@@ -2,29 +2,38 @@ import React from 'react'; // Added React import for JSX in getTerminIcon
 import { Music, Star, Cake, Calendar } from 'lucide-react';
 
 export const getTerminIcon = (type, className = 'w-6 h-6') => {
-    switch (type) {
-        case 'chorprobe': return <Music className={className} />;
-        case 'event': return <Star className={className} />;
-        case 'geburtstag': return <Cake className={className} />;
-        default: return <Calendar className={className} />;
+    if (type === 'chorprobe' || (typeof type === 'string' && type.startsWith('rehearsal-'))) {
+        return <Music className={className} />;
+    } else if (type === 'event') {
+        return <Star className={className} />;
+    } else if (type === 'geburtstag') {
+        return <Cake className={className} />;
+    } else {
+        return <Calendar className={className} />;
     }
 };
 
 export const getTerminColor = (type) => {
-    switch (type) {
-        case 'chorprobe': return 'border-blue-500 bg-blue-50';
-        case 'event': return 'border-amber-500 bg-amber-50';
-        case 'geburtstag': return 'border-pink-500 bg-pink-50';
-        default: return 'border-gray-500 bg-gray-50';
+    if (type === 'chorprobe' || (typeof type === 'string' && type.startsWith('rehearsal-'))) {
+        return 'border-blue-500 bg-blue-50';
+    } else if (type === 'event') {
+        return 'border-amber-500 bg-amber-50';
+    } else if (type === 'geburtstag') {
+        return 'border-pink-500 bg-pink-50';
+    } else {
+        return 'border-gray-500 bg-gray-50';
     }
 };
 
 export const getTerminAccent = (type) => {
-    switch (type) {
-        case 'chorprobe': return 'text-blue-600';
-        case 'event': return 'text-amber-600';
-        case 'geburtstag': return 'text-pink-600';
-        default: return 'text-gray-600';
+    if (type === 'chorprobe' || (typeof type === 'string' && type.startsWith('rehearsal-'))) {
+        return 'text-blue-600';
+    } else if (type === 'event') {
+        return 'text-amber-600';
+    } else if (type === 'geburtstag') {
+        return 'text-pink-600';
+    } else {
+        return 'text-gray-600';
     }
 };
 

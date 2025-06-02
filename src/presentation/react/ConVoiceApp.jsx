@@ -1,10 +1,15 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Calendar } from 'lucide-react';
+// Calendar is now only used in EventsPage
+// import { Calendar } from 'lucide-react';
 import Header from './components/Header';
-import FilterSidebar from './components/FilterSidebar';
-import EventCard from './components/EventCard';
-import NextEventHighlight from './components/NextEventHighlight';
+// FilterSidebar is now used in EventsPage
+// import FilterSidebar from './components/FilterSidebar';
+// EventCard is now used in EventsPage
+// import EventCard from './components/EventCard';
+// NextEventHighlight is now used in EventsPage
+// import NextEventHighlight from './components/NextEventHighlight';
 import DataEntryPage from './pages/DataEntryPage';
+import EventsPage from './pages/EventsPage.jsx'; // Import EventsPage
 import ScrollToTopButton from './components/ScrollToTopButton';
 import { downloadICS } from '../../infrastructure/services/icsHelper';
 import LoginPage from './pages/LoginPage.jsx';
@@ -51,15 +56,17 @@ const manageYearlyDataUseCase = new ManageYearlyDataUseCase(jsonYearlyDataReposi
 
 const ConVoiceApp = () => {
     const [theme, setTheme] = useState(getInitialTheme());
-    const [allTermine, setAllTermine] = useState([]); // Will hold Event instances
+    // allTermine state is moved to EventsPage
+    // const [allTermine, setAllTermine] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectedYear, setSelectedYear] = useState(null);
+    const [selectedYear, setSelectedYear] = useState(null); // Stays in ConVoiceApp, passed as initialSelectedYear
     const [availableYears, setAvailableYears] = useState([]);
-    // const [appConfig, setAppConfig] = useState(null); // Optional: if you want to store the full AppConfig entity
+    // const [appConfig, setAppConfig] = useState(null);
 
-    const [typeFilter, setTypeFilter] = useState('all');
-    const [timeFilter, setTimeFilter] = useState('upcoming');
-    const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+    // typeFilter and timeFilter states are moved to EventsPage
+    // const [typeFilter, setTypeFilter] = useState('all');
+    // const [timeFilter, setTimeFilter] = useState('upcoming');
+    const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false); // Stays, passed to Header and EventsPage
     const [showDataEntryPage, setShowDataEntryPage] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -119,77 +126,9 @@ const ConVoiceApp = () => {
       }
     }, []);
 
-    // Effect for loading schedule data when selectedYear changes
-    useEffect(() => {
-        if (!selectedYear || showDataEntryPage) {
-            if (showDataEntryPage) setAllTermine([]); // Clear schedule if navigating to data entry
-            return;
-        }
-
-        const loadData = async () => {
-            try {
-                // LoadScheduleUseCase is now responsible for fetching all necessary data,
-                // including handling previous year's exceptional timespans if it's refactored to do so.
-                // For this subtask, we assume it correctly returns the schedule for 'selectedYear'.
-                const scheduleEvents = await loadScheduleUseCase.execute(selectedYear);
-                setAllTermine(scheduleEvents || []);
-            } catch (error) {
-                console.error(`Error loading schedule for year ${selectedYear}:`, error);
-                setAllTermine([]); // Set to empty on error
-            }
-        };
-        loadData();
-    }, [selectedYear, showDataEntryPage]);
-
-    const filteredTermine = useMemo(() => {
-        if (showDataEntryPage) return [];
-        const now = new Date();
-        // Ensure correct date comparison: dates from Event entities are 'YYYY-MM-DD' strings
-        const today = now.toISOString().split('T')[0];
-
-        return allTermine.filter(termin => {
-            // termin is now an Event instance
-            if (searchTerm && !termin.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
-                !termin.date.includes(searchTerm)) {
-                return false;
-            }
-            // selectedYear is a number, termin.date is 'YYYY-MM-DD'
-            if (selectedYear && !termin.date.startsWith(selectedYear.toString())) {
-                return false;
-            }
-            if (typeFilter !== 'all' && termin.type !== typeFilter) {
-                return false;
-            }
-            if (timeFilter === 'upcoming' && termin.date < today) {
-                return false;
-            }
-            return true;
-        });
-    }, [allTermine, searchTerm, selectedYear, typeFilter, timeFilter, showDataEntryPage]);
-
-    const nextDayEvents = useMemo(() => {
-        if (showDataEntryPage || allTermine.length === 0) return null;
-
-        const now = new Date();
-        const today = now.toISOString().split('T')[0];
-
-        const upcomingTermine = allTermine
-            .filter(termin => termin.date >= today)
-            .sort((a, b) => { // Sort by date, then by startTime
-                const dateComparison = a.date.localeCompare(b.date);
-                if (dateComparison !== 0) return dateComparison;
-                return (a.startTime || '').localeCompare(b.startTime || '');
-            });
-
-        if (upcomingTermine.length === 0) {
-            return null;
-        }
-
-        const soonestDate = upcomingTermine[0].date;
-        const eventsOnSoonestDate = upcomingTermine.filter(termin => termin.date === soonestDate);
-
-        return eventsOnSoonestDate.length > 0 ? eventsOnSoonestDate : null;
-    }, [allTermine, showDataEntryPage]);
+    // useEffect for loading schedule data is moved to EventsPage
+    // filteredTermine useMemo is moved to EventsPage
+    // nextDayEvents useMemo is moved to EventsPage
 
     return (
       <>
@@ -223,54 +162,15 @@ const ConVoiceApp = () => {
                     </button>
                 </div>
             ) : (
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                    <div className="flex flex-col lg:flex-row gap-8">
-                        <FilterSidebar
-                            mobileFiltersOpen={mobileFiltersOpen}
-                            setMobileFiltersOpen={setMobileFiltersOpen}
-                            yearFilter={selectedYear}
-                            setYearFilter={setSelectedYear}
-                            typeFilter={typeFilter}
-                            setTypeFilter={setTypeFilter}
-                            timeFilter={timeFilter}
-                            setTimeFilter={setTimeFilter}
-                            availableYears={availableYears}
-                            filteredTermine={filteredTermine}
-                        />
-                        <div className="flex-1">
-                            {nextDayEvents && nextDayEvents.length > 0 && timeFilter === 'upcoming' && (
-                                <NextEventHighlight
-                                    nextEvents={nextDayEvents}
-                                    onDownloadICS={downloadICS} // downloadICS from icsHelper is fine
-                                />
-                            )}
-                            <div>
-                                <h2 className="text-2xl font-bold text-gray-900 mb-6 dark:text-white">
-                                    {timeFilter === 'upcoming' && nextDayEvents && nextDayEvents.length > 0 ? 'Weitere Termine' : 'Alle Termine'}
-                                </h2>
-                                {filteredTermine.length === 0 ? (
-                                    <div className="text-center py-12">
-                                        <Calendar className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-                                        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Keine Termine gefunden</h3>
-                                        <p className="text-gray-500 dark:text-gray-400">Versuche andere Filtereinstellungen.</p>
-                                    </div>
-                                ) : (
-                                    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                                        {filteredTermine
-                                            .filter(termin => timeFilter !== 'upcoming' || !nextDayEvents || !nextDayEvents.find(ne => ne.id === termin.id))
-                                            .map((termin) => (
-                                                <EventCard
-                                                    key={termin.id} // Event instances should have unique IDs
-                                                    termin={termin} // Pass Event instance
-                                                    onDownloadICS={downloadICS}
-                                                />
-                                            ))}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <EventsPage
+                    searchTerm={searchTerm}
+                    availableYears={availableYears}
+                    initialSelectedYear={selectedYear} // Pass ConVoiceApp's selectedYear as initialSelectedYear
+                    loadScheduleUseCase={loadScheduleUseCase} // Pass the use case instance
+                    downloadICS={downloadICS} // Pass the helper function
+                    mobileFiltersOpen={mobileFiltersOpen}
+                    setMobileFiltersOpen={setMobileFiltersOpen}
+                />
             )}
             <ScrollToTopButton />
           </div>

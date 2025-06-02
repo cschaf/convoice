@@ -538,7 +538,7 @@ const DataEntryPage = ({ manageYearlyDataUseCase, availableYears = placeholderAv
           <div className="flex items-start space-x-2 sm:space-x-3">
             <Info size={20} className="flex-shrink-0 mt-0.5" />
             <p>
-              <strong>Wichtiger Hinweis:</strong> Nachdem Sie die JSON-Datei heruntergeladen haben, senden Sie diese bitte per E-Mail an den Administrator ([Admin E-Mail Adresse] oder die bekannte Admin E-Mail Adresse), damit die Termine in den Hauptkalender eingepflegt werden können. Vielen Dank!
+              <strong>Wichtiger Hinweis:</strong> Nachdem Sie die JSON-Datei heruntergeladen haben, senden Sie diese bitte per E-Mail an den Administrator oder die bekannte Admin E-Mail Adresse, damit die Termine in den Hauptkalender eingepflegt werden können. Vielen Dank!
             </p>
           </div>
         </div>

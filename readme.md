@@ -25,7 +25,7 @@ Eine moderne Web-App zur Verwaltung von Terminen für den ConVoice Gospel Chor B
 
 ## Über das Projekt
 
-ConVoice Terminverwaltung ist eine moderne Webanwendung, die entwickelt wurde, um Termine und Veranstaltungen für den ConVoice Gospel Chor Bremen effizient zu verwalten. Sie löst die Herausforderung, Chormitglieder über bevorstehende Proben, Auftritte und andere wichtige Termine informiert zu halten.
+ConVoice Terminverwaltung ist eine moderne Webanwendung, die entwickelt wurde, um Termine und Veranstaltungen für den ConVoice Gospel Chor Bremen effizient zu verwalten. Sie löst die Herausforderung, Chormitglieder über bevorstehende Proben, Auftritte und andere wichtige Termine informiert zu halten. Das Projekt wurde kürzlich einer umfassenden Refaktorisierung unterzogen, um die Prinzipien der Clean Architecture zu übernehmen. Diese Umstrukturierung zielt darauf ab, die Modularität, Testbarkeit und Wartbarkeit der Codebasis langfristig zu verbessern.
 
 Wichtige Funktionen sind:
 *   **Klare Terminübersicht:** Eine organisierte und leicht verständliche Darstellung aller Veranstaltungen.
@@ -92,15 +92,27 @@ Für spezifische Details zur Dateneingabe oder zu administrativen Funktionen kö
 
 ## Projektstruktur
 
-Das Projekt folgt einer Standard-Vite-Anwendungsstruktur:
+Das Projekt folgt nun einer an Clean Architecture orientierten Struktur, um eine klare Trennung der Belange zu gewährleisten:
 
 *   **`.github/`**: Enthält GitHub Actions Workflow-Dateien, hauptsächlich für die automatisierte Bereitstellung auf GitHub Pages.
-*   **`public/`**: (Falls vorhanden oder Assets über `index.html` gehandhabt) Statische Assets, die direkt in das Build-Ausgabeverzeichnis kopiert werden.
+*   **`public/`**: Statische Assets, die direkt in das Build-Ausgabeverzeichnis kopiert werden (z.B. `vite.svg`).
 *   **`src/`**: Der Hauptquellcode der Anwendung.
-    *   **`assets/`**: (Falls vorhanden) Statische Assets wie Bilder, Schriftarten, die in Komponenten importiert werden.
-    *   **`components/`**: Wiederverwendbare React-Komponenten, die die Benutzeroberfläche bilden (z.B. `EventCard.jsx`, `FilterSidebar.jsx`).
-    *   **`data/`**: JSON-Dateien und andere statische Daten, die von der Anwendung verwendet werden (z.B. Termindaten, Mitgliederlisten).
-    *   **`utils/`**: Hilfsfunktionen, Helfer und benutzerdefinierte Hooks (z.B. `dataManager.js`, `icsHelper.js`).
+    *   **`domain/`**: Enthält die Kernlogik und die Geschäftsregeln der Anwendung.
+        *   `entities/`: Domänenobjekte (z.B. `Event.js`, `Member.js`), die die grundlegenden Datenstrukturen und deren Logik definieren.
+        *   `services/`: Domänendienste (z.B. `ScheduleGeneratorService.js`), die komplexere, entitätsübergreifende Geschäftslogik kapseln.
+    *   **`application/`**: Steuert die Anwendungsfälle und die Interaktion zwischen der Domänenschicht und der Infrastrukturschicht.
+        *   `usecases/`: Anwendungsfälle (z.B. `LoadScheduleUseCase.js`, `ManageYearlyDataUseCase.js`), die spezifische Anwendungsaktionen repräsentieren.
+        *   `repositories/`: Schnittstellen (abstrakte Verträge) für den Datenzugriff (z.B. `IYearlyDataRepository.js`).
+    *   **`infrastructure/`**: Implementiert Details für externe Abhängigkeiten wie Datenquellen oder externe Dienste.
+        *   `data/`: Konkrete Implementierungen der Repository-Schnittstellen (z.B. `JsonYearlyDataRepository.js`), die auf JSON-Dateien zugreifen.
+        *   `services/`: Integrationen mit externen Diensten (z.B. `icsHelper.js` für iCalendar-Exporte).
+    *   **`presentation/`**: Verantwortlich für die Benutzeroberfläche und die Interaktion mit dem Benutzer.
+        *   `react/components/`: Wiederverwendbare, kleinere React-Komponenten (z.B. `EventCard.jsx`, `FilterSidebar.jsx`).
+        *   `react/pages/`: Komponenten, die ganze Seiten repräsentieren (z.B. `DataEntryPage.jsx`, `LoginPage.jsx`).
+        *   `react/hooks/`: (Bisher nicht explizit vorhanden) Benutzerdefinierte React Hooks.
+        *   `react/utils/`: UI-spezifische Hilfsfunktionen (z.B. `helpers.jsx`).
+        *   `theme.js`: Logik und Konfiguration für das Anwendungs-Theme.
+    *   **`data/`**: JSON-Dateien, die als primäre Datenquelle für die Anwendung dienen (z.B. Termindaten, Mitgliederlisten).
     *   **`main.jsx`**: Der Haupteinstiegspunkt für die React-Anwendung.
     *   **`index.css`**: Globale Stile und Tailwind CSS Basiskonfigurationen.
 *   **Root-Verzeichnis**:
@@ -136,7 +148,7 @@ Bitte stellen Sie sicher, dass Ihr Code den Programmierstandards des Projekts en
 
 ## Lizenz
 
-Verteilt unter der MIT-Lizenz. Siehe `LICENSE` für weitere Informationen.
+Verteilt unter der MIT-Lizenz. Siehe `LICENSE` für weitere Informationen. (Hinweis: Eine `LICENSE`-Datei ist im aktuellen Repository nicht vorhanden, sollte aber für ein MIT-Lizenzprojekt hinzugefügt werden.)
 
 ## Kontakt
 

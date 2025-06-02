@@ -3,8 +3,6 @@ import { Calendar } from 'lucide-react';
 import FilterSidebar from '../components/FilterSidebar';
 import EventCard from '../components/EventCard';
 import NextEventHighlight from '../components/NextEventHighlight';
-// downloadICS will be passed as a prop
-// loadScheduleUseCase will be passed as a prop
 
 const EventsPage = ({
     searchTerm, // Prop
@@ -16,24 +14,19 @@ const EventsPage = ({
     setMobileFiltersOpen, // Prop
 }) => {
     const [allTermine, setAllTermine] = useState([]);
-    // selectedYear is now primarily managed by ConVoiceApp if it's needed there for other reasons,
-    // or EventsPage can have its own selectedYear state initialized by initialSelectedYear.
-    // The prompt mentioned "setSelectedYear" to be moved.
-    // Let's make selectedYear an internal state of EventsPage, initialized by initialSelectedYear.
-    // FilterSidebar sets this internal state. If ConVoiceApp needs to know about year changes from FilterSidebar,
-    // then selectedYear and setSelectedYear would need to live in ConVoiceApp and be passed as props.
-    // For now, keeping selectedYear and setSelectedYear internal to EventsPage as per "self-contained" focus.
+    // Manages its own selectedYear state, initialized by the initialSelectedYear prop.
+    // This allows FilterSidebar within EventsPage to change the year for this page's content.
     const [selectedYear, setSelectedYear] = useState(initialSelectedYear);
     const [typeFilter, setTypeFilter] = useState('all');
     const [timeFilter, setTimeFilter] = useState('upcoming');
-    // mobileFiltersOpen and setMobileFiltersOpen are now props.
+    // mobileFiltersOpen and setMobileFiltersOpen are props controlled by ConVoiceApp/Header.
 
-    // Effect to update internal selectedYear if the initialSelectedYear prop changes
+    // Effect to update internal selectedYear if the initialSelectedYear prop from ConVoiceApp changes.
     useEffect(() => {
         setSelectedYear(initialSelectedYear);
     }, [initialSelectedYear]);
 
-    // Effect for loading schedule data
+    // Effect for loading schedule data when selectedYear (internal state) or loadScheduleUseCase prop changes.
     useEffect(() => {
         if (!selectedYear || !loadScheduleUseCase) {
             return;

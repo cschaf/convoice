@@ -1,23 +1,12 @@
-import React, { useState, useEffect, useMemo } from 'react';
-// Calendar is now only used in EventsPage
-// import { Calendar } from 'lucide-react';
+import React, { useState, useEffect } from 'react'; // Removed useMemo
 import Header from './components/Header';
-// FilterSidebar is now used in EventsPage
-// import FilterSidebar from './components/FilterSidebar';
-// EventCard is now used in EventsPage
-// import EventCard from './components/EventCard';
-// NextEventHighlight is now used in EventsPage
-// import NextEventHighlight from './components/NextEventHighlight';
 import DataEntryPage from './pages/DataEntryPage';
-import EventsPage from './pages/EventsPage.jsx'; // Import EventsPage
+import EventsPage from './pages/EventsPage.jsx';
 import ScrollToTopButton from './components/ScrollToTopButton';
 import { downloadICS } from '../../infrastructure/services/icsHelper';
 import LoginPage from './pages/LoginPage.jsx';
 import { getInitialTheme, applyTheme } from '../theme.js';
 import { Toaster } from "sonner";
-
-// Domain Entities (AppConfig might be useful for initial state type)
-// import AppConfig from '../../../domain/entities/AppConfig.js'; // If needed for state type
 
 // Repositories
 import { JsonAppConfigRepository } from '../../infrastructure/data/JsonAppConfigRepository.js';
@@ -32,9 +21,6 @@ import { GetAppConfigUseCase } from '../../application/usecases/GetAppConfigUseC
 import { LoadScheduleUseCase } from '../../application/usecases/LoadScheduleUseCase.js';
 import { LoadAvailableYearsUseCase } from '../../application/usecases/LoadAvailableYearsUseCase.js';
 import { ManageYearlyDataUseCase } from '../../application/usecases/ManageYearlyDataUseCase.js';
-// YearlyRawData might be needed if ConVoiceApp still constructs it, but ideally LoadScheduleUseCase handles this.
-// import YearlyRawData from '../../../domain/entities/YearlyRawData.js';
-
 
 // Instantiate dependencies
 // These instances are created once when the App component module is loaded.
@@ -56,17 +42,12 @@ const manageYearlyDataUseCase = new ManageYearlyDataUseCase(jsonYearlyDataReposi
 
 const ConVoiceApp = () => {
     const [theme, setTheme] = useState(getInitialTheme());
-    // allTermine state is moved to EventsPage
-    // const [allTermine, setAllTermine] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectedYear, setSelectedYear] = useState(null); // Stays in ConVoiceApp, passed as initialSelectedYear
+    // selectedYear from ConVoiceApp is passed as initialSelectedYear to EventsPage.
+    // EventsPage then manages its own internal 'selectedYear' state for filtering and data loading.
+    const [selectedYear, setSelectedYear] = useState(null);
     const [availableYears, setAvailableYears] = useState([]);
-    // const [appConfig, setAppConfig] = useState(null);
-
-    // typeFilter and timeFilter states are moved to EventsPage
-    // const [typeFilter, setTypeFilter] = useState('all');
-    // const [timeFilter, setTimeFilter] = useState('upcoming');
-    const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false); // Stays, passed to Header and EventsPage
+    const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
     const [showDataEntryPage, setShowDataEntryPage] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -87,14 +68,7 @@ const ConVoiceApp = () => {
     useEffect(() => {
         const fetchInitialConfig = async () => {
             try {
-                // Option 1: Use LoadAvailableYearsUseCase (if years come from data files presence)
                 const years = await loadAvailableYearsUseCase.execute();
-
-                // Option 2: Use GetAppConfigUseCase (if years come from a central config defined in AppConfig)
-                // const currentAppConfig = await getAppConfigUseCase.execute();
-                // setAppConfig(currentAppConfig); // if you need the full config object
-                // const years = currentAppConfig.availableYears;
-
                 setAvailableYears(years || []);
 
                 const actualCurrentYear = new Date().getFullYear();
@@ -126,9 +100,8 @@ const ConVoiceApp = () => {
       }
     }, []);
 
-    // useEffect for loading schedule data is moved to EventsPage
-    // filteredTermine useMemo is moved to EventsPage
-    // nextDayEvents useMemo is moved to EventsPage
+    // Note: Effects and logic for actually loading and filtering Termine (events)
+    // based on selectedYear, searchTerm, etc., are now handled within EventsPage.jsx.
 
     return (
       <>
@@ -165,9 +138,9 @@ const ConVoiceApp = () => {
                 <EventsPage
                     searchTerm={searchTerm}
                     availableYears={availableYears}
-                    initialSelectedYear={selectedYear} // Pass ConVoiceApp's selectedYear as initialSelectedYear
-                    loadScheduleUseCase={loadScheduleUseCase} // Pass the use case instance
-                    downloadICS={downloadICS} // Pass the helper function
+                    initialSelectedYear={selectedYear}
+                    loadScheduleUseCase={loadScheduleUseCase}
+                    downloadICS={downloadICS}
                     mobileFiltersOpen={mobileFiltersOpen}
                     setMobileFiltersOpen={setMobileFiltersOpen}
                 />

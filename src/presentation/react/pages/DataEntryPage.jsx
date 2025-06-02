@@ -3,19 +3,8 @@ import { PlusCircle, Trash2, ChevronDown, ChevronRight, Info } from 'lucide-reac
 import { toast } from 'sonner';
 import ScrollToTopButton from '../components/ScrollToTopButton';
 // Removed: import { getYearlyData } from '../../../infrastructure/data/yearlyDataLoader.js';
-// No direct import of config.json for availableYears here anymore, should be passed from ConVoiceApp or fetched via use case if needed independently.
-// For this refactor, availableYears for the dropdown will be an issue if not passed as a prop or fetched.
-// This component's primary role is data entry for a *selected* year, ConVoiceApp handles availableYears.
-// We might need to adjust how `availableYears` for the "Load existing year data" dropdown is populated.
-// For now, this example assumes `availableYears` is passed as a prop if that feature is to be kept.
-// Or, it could be fetched via a dedicated use case if DataEntryPage becomes more independent.
-// Let's assume `availableYears` is passed in from `ConVoiceApp` or removed if not immediately critical for THIS refactor scope.
-// The `config` import for `availableYears` is removed. The `availableYears` constant below will be an empty array or passed as prop.
-
-// const { availableYears } = config; // This line is removed.
-// availableYears for the dropdown will be populated from a prop if needed, or the feature simplified.
-// For now, to avoid breaking the select, we'll use a placeholder.
-// This should ideally be provided by ConVoiceApp or a dedicated use case.
+// availableYears is passed as a prop from ConVoiceApp and used for the 'Load existing year data' dropdown.
+// It defaults to placeholderAvailableYears if not provided.
 const placeholderAvailableYears = [new Date().getFullYear()];
 
 
@@ -427,8 +416,6 @@ const DataEntryPage = ({ manageYearlyDataUseCase, availableYears = placeholderAv
         />
       </div>
 
-      {/* Event, ExceptionalDate, ExceptionalTimespan sections remain visually similar but data flow is updated */}
-      {/* ... (sections for events, exceptional dates, timespans) ... */}
       <section className="p-4 sm:p-6 bg-slate-50 dark:bg-slate-800 rounded-lg shadow-md space-y-4 sm:space-y-6">
         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 mb-1">
           <h2 className="text-xl sm:text-2xl font-semibold text-slate-800 dark:text-slate-100">Termine</h2>

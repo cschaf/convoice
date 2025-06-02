@@ -1,5 +1,5 @@
 import React from 'react';
-import { Music, Filter, Menu, Search, Sun, Moon, FilePlus, Calendar, LogOut } from 'lucide-react';
+import { Music, Filter, Menu, Search, FilePlus, Calendar, LogOut } from 'lucide-react'; // Removed Sun, Moon
 
 const Header = ({
   searchTerm,

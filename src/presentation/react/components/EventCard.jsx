@@ -11,12 +11,6 @@ import {
 
 const EventCard = ({
   termin,
-  // getTerminColor, // Removed
-  // getTerminAccent, // Removed
-  // getTerminIcon, // Removed
-  // formatDate, // Removed
-  // isTerminPast, // Removed
-  // getDaysUntilTermin, // Removed
   onDownloadICS
 }) => {
   const isPast = isTerminPast(termin.date);

@@ -1,1 +1,18 @@
-{"events":[],"exceptionalDates":[],"exceptionalTimespans":[]}
+{
+  "events": [],
+  "exceptionalDates": [],
+  "exceptionalTimespans": [
+    {
+      "start": "2026-07-02",
+      "end": "2026-08-12"
+    },
+    {
+      "start": "2026-10-12",
+      "end": "2026-10-24"
+    },
+    {
+      "start": "2026-12-23",
+      "end": "2027-01-09"
+    }
+  ]
+}

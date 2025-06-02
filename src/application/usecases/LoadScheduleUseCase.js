@@ -8,8 +8,9 @@ export class LoadScheduleUseCase {
      * @param {IYearlyDataRepository} yearlyDataRepository - An instance of a class implementing IYearlyDataRepository.
      * @param {IMemberRepository} memberRepository - An instance of a class implementing IMemberRepository.
      * @param {ScheduleGeneratorService} scheduleGeneratorService - An instance of ScheduleGeneratorService.
+     * @param {IAppConfigRepository} appConfigRepository - An instance of a class implementing IAppConfigRepository.
      */
-    constructor(yearlyDataRepository, memberRepository, scheduleGeneratorService) {
+    constructor(yearlyDataRepository, memberRepository, scheduleGeneratorService, appConfigRepository) {
         if (!yearlyDataRepository || typeof yearlyDataRepository.getYearlyData !== 'function') {
             throw new Error("LoadScheduleUseCase: yearlyDataRepository is invalid or missing getYearlyData method.");
         }
@@ -19,9 +20,13 @@ export class LoadScheduleUseCase {
         if (!scheduleGeneratorService || typeof scheduleGeneratorService.generateYearlySchedule !== 'function') {
             throw new Error("LoadScheduleUseCase: scheduleGeneratorService is invalid or missing generateYearlySchedule method.");
         }
+        if (!appConfigRepository || typeof appConfigRepository.getRehearsalSettings !== 'function') {
+            throw new Error("LoadScheduleUseCase: appConfigRepository is invalid or missing getRehearsalSettings method.");
+        }
         this.yearlyDataRepository = yearlyDataRepository;
         this.memberRepository = memberRepository;
         this.scheduleGeneratorService = scheduleGeneratorService;
+        this.appConfigRepository = appConfigRepository;
     }
 
     /**
@@ -61,7 +66,8 @@ export class LoadScheduleUseCase {
         );
 
         const members = await this.memberRepository.getAllMembers();
+        const rehearsalConfigs = await this.appConfigRepository.getRehearsalSettings();
 
-        return this.scheduleGeneratorService.generateYearlySchedule(effectiveYearlyData, members, year);
+        return this.scheduleGeneratorService.generateYearlySchedule(effectiveYearlyData, members, year, rehearsalConfigs);
     }
 }

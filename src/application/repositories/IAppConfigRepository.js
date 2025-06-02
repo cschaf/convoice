@@ -12,4 +12,12 @@ export class IAppConfigRepository {
     async getAppConfig() {
         throw new Error('Method not implemented: getAppConfig');
     }
+
+    /**
+     * Retrieves the rehearsal settings.
+     * @returns {Promise<Array<Object>>} A promise that resolves to an array of rehearsal configuration objects.
+     */
+    async getRehearsalSettings() {
+        throw new Error('Method not implemented: getRehearsalSettings');
+    }
 }

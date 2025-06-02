@@ -42,6 +42,7 @@ const LoginPage = ({ onLoginSuccess }) => {
               onChange={(e) => setUsername(e.target.value)}
               className={inputClasses}
               required
+              autocomplete="username"
             />
           </div>
           <div>
@@ -56,6 +57,7 @@ const LoginPage = ({ onLoginSuccess }) => {
               onChange={(e) => setPassword(e.target.value)}
               className={inputClasses}
               required
+              autocomplete="current-password"
             />
           </div>
           <button

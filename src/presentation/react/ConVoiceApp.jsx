@@ -9,7 +9,7 @@ import { getInitialTheme, applyTheme } from '../theme.js';
 import { Toaster } from "sonner";
 
 // Repositories
-// import { JsonAppConfigRepository } from '../../infrastructure/data/JsonAppConfigRepository.js'; // Removed
+import { JsonAppConfigRepository } from '../../infrastructure/data/JsonAppConfigRepository.js';
 import { JsonMemberRepository } from '../../infrastructure/data/JsonMemberRepository.js';
 import { JsonYearlyDataRepository } from '../../infrastructure/data/JsonYearlyDataRepository.js';
 
@@ -25,13 +25,13 @@ import { ManageYearlyDataUseCase } from '../../application/usecases/ManageYearly
 // Instantiate dependencies
 // These instances are created once when the App component module is loaded.
 // They don't depend on component state/props for their own instantiation.
-// const jsonAppConfigRepository = new JsonAppConfigRepository(); // Removed
+const jsonAppConfigRepository = new JsonAppConfigRepository();
 const jsonMemberRepository = new JsonMemberRepository();
 const jsonYearlyDataRepository = new JsonYearlyDataRepository();
 const scheduleGeneratorService = new ScheduleGeneratorService();
 
 // const getAppConfigUseCase = new GetAppConfigUseCase(jsonAppConfigRepository); // Removed
-const loadScheduleUseCase = new LoadScheduleUseCase(jsonYearlyDataRepository, jsonMemberRepository, scheduleGeneratorService);
+const loadScheduleUseCase = new LoadScheduleUseCase(jsonYearlyDataRepository, jsonMemberRepository, scheduleGeneratorService, jsonAppConfigRepository);
 // For available years, we can either use AppConfig or directly from YearlyDataRepository if that's the source of truth for displayed years.
 // The old code used config.json's availableYears, which JsonAppConfigRepository previously provided via AppConfig entity.
 // However, LoadAvailableYearsUseCase is also provided, which uses IYearlyDataRepository.getAvailableYears().

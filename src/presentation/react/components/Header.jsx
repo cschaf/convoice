@@ -15,18 +15,64 @@ const Header = ({
 }) => {
 
   const handlePrintEvents = () => {
-    // Optional: Check if there's anything to print or if the context is appropriate
-    // For now, we'll just directly call window.print() as requested.
-    // The user should be on the EventsPage, so filteredEvents might still be relevant
-    // if we want to show a message if no events are visible.
-    // However, the request is to disable the *preview*, so direct printing is key.
+    if (!filteredEvents || filteredEvents.length === 0) {
+        if (window.toast && typeof window.toast.warning === 'function') {
+            window.toast.warning("Keine Termine zum Drucken vorhanden.");
+        } else {
+            alert("Keine Termine zum Drucken vorhanden.");
+        }
+        return;
+    }
 
-    // Consider if a check for filteredEvents is still desired before printing.
-    // For simplicity in disabling the preview, let's remove it for now.
-    // If no events are shown on the page, printing it might be confusing,
-    // but that's inherent to printing the main view.
+    let eventsHtml = '<html><head><title>Terminliste</title>';
+    eventsHtml += '<style>body { font-family: sans-serif; margin: 20px; } li { margin-bottom: 10px; }</style>';
+    eventsHtml += '</head><body>';
+    eventsHtml += '<h1>Terminliste</h1>';
+    eventsHtml += '<ol>';
 
-    window.print(); // Directly invoke browser's print dialog for the current page
+    filteredEvents.forEach(event => {
+        const date = new Date(event.date);
+        const formattedDate = `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.${date.getFullYear()}`;
+        let eventDetails = `${formattedDate} - ${event.title}`;
+        if (event.startTime) {
+            eventDetails += ` - ${event.startTime}`;
+        }
+        if (event.location) {
+            eventDetails += ` - ${event.location}`;
+        }
+        eventsHtml += `<li>${eventDetails}</li>`;
+    });
+
+    eventsHtml += '</ol>';
+    eventsHtml += '</body></html>';
+
+    const printWindow = window.open('', 'printWindow_' + Date.now(), 'height=800,width=600');
+
+    if (printWindow) {
+        printWindow.document.open();
+        printWindow.document.write(eventsHtml);
+        printWindow.document.close();
+        setTimeout(() => {
+            try {
+                printWindow.print();
+                printWindow.close();
+            } catch (e) {
+                console.error("Error during print/close:", e);
+                // Attempt to close again if an error occurred, e.g., if print dialog was blocked.
+                try {
+                    printWindow.close();
+                } catch (e2) {
+                    console.error("Error during fallback close:", e2);
+                }
+            }
+        }, 250); // 250ms delay
+    } else {
+        if (window.toast && typeof window.toast.error === 'function') {
+            window.toast.error("Druckfenster konnte nicht geöffnet werden. Bitte Pop-up-Blocker überprüfen.");
+        } else {
+            alert("Druckfenster konnte nicht geöffnet werden. Bitte Pop-up-Blocker überprüfen.");
+        }
+    }
   };
 
   return (

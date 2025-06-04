@@ -34,7 +34,7 @@ const Header = ({
         // Delay printing slightly to ensure content is rendered, especially complex CSS or images
         setTimeout(() => {
             printWindow.print();
-            // Not auto-closing: printWindow.close();
+            printWindow.close(); // Now auto-closing
         }, 250);
     } else {
         if (window.toast && typeof window.toast.error === 'function') {

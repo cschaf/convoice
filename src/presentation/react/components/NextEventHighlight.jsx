@@ -103,7 +103,7 @@ const NextEventHighlight = ({
             </div>
           </div>
           {/* Right side: ICS Download and Days Until (common) */}
-          <div className="flex flex-row flex-wrap items-center justify-end gap-x-4 gap-y-2 sm:flex-shrink-0 sm:pl-4 mt-4 sm:mt-0">
+          <div className="flex flex-row flex-wrap items-center justify-start gap-x-4 gap-y-2 sm:flex-shrink-0 sm:pl-4 mt-4 sm:mt-0">
             {isSingleEvent && (
               <button
                 onClick={() => onDownloadICS(displayEvent)} // Use displayEvent
@@ -114,7 +114,7 @@ const NextEventHighlight = ({
               </button>
             )}
             {/* Grouping daysDisplay and its label for better flexbox handling */}
-            <div className="text-right"> {/* Keep text alignment for this block */}
+            <div className="text-left"> {/* Changed from text-right */}
               <div className="text-xl sm:text-2xl font-bold text-amber-600 dark:text-amber-400">
                 {daysDisplayString}
               </div>

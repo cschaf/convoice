@@ -22,13 +22,13 @@ export const generatePrintableEventsHtml = (events) => {
         return `
             <html>
                 <head>
-                    <title>Print Events</title>
+                    <title>Termine drucken</title>
                     <style>
                         body { font-family: sans-serif; text-align: center; padding-top: 50px; }
                     </style>
                 </head>
                 <body>
-                    <p>No events to print.</p>
+                    <p>Keine Termine zum Drucken vorhanden.</p>
                 </body>
             </html>
         `;
@@ -60,18 +60,13 @@ export const generatePrintableEventsHtml = (events) => {
         });
 
         sortedEventsInMonth.forEach(event => {
-            let dateTimeLine = `<p><strong>Date:</strong> ${formatDateForPrint(event.date)}`;
-            if (event.startTime) {
-                dateTimeLine += ` &nbsp;&nbsp;<strong>Time:</strong> ${event.startTime}${event.endTime ? ` - ${event.endTime}` : ''}`;
-            }
-            dateTimeLine += `</p>`;
-
             eventsHtml += `
                 <div class="event-item">
                     <h3>${event.title}</h3>
-                    ${dateTimeLine}
-                    ${event.location ? `<p><strong>Location:</strong> ${event.location}</p>` : ''}
-                    ${event.description ? `<p class="description"><strong>Description:</strong> ${event.description}</p>` : ''}
+                    <p><strong>Datum:</strong> ${formatDateForPrint(event.date)}</p>
+                    ${event.startTime ? `<p><strong>Uhrzeit:</strong> ${event.startTime}${event.endTime ? ` - ${event.endTime}` : ''}</p>` : ''}
+                    ${event.location ? `<p><strong>Ort:</strong> ${event.location}</p>` : ''}
+                    ${event.description ? `<p class="description"><strong>Info:</strong> ${event.description}</p>` : ''}
                 </div>`;
         });
         eventsHtml += `</div>`; // Closing events-grid container
@@ -81,65 +76,65 @@ export const generatePrintableEventsHtml = (events) => {
     return `
         <html>
             <head>
-                <title>ConVoice Events</title>
+                <title>ConVoice Termine</title>
                 <style>
                     @media print {
                         body {
                             font-family: Arial, sans-serif;
                             margin: 20mm; /* A4 margins */
                             color: #333;
-                            font-size: 11pt; /* Increased base font size */
-                            line-height: 1.4; /* Default line height */
+                            font-size: 10pt; /* Reduced base font size for 3-column */
+                            line-height: 1.4;
                             width: auto;
                         }
                         h1 {
                             text-align: center;
-                            font-size: 1.8em; /* Relative to 11pt */
-                            margin-bottom: 25px;
+                            font-size: 1.8em; /* Relative to 10pt */
+                            margin-bottom: 20px; /* Slightly reduced */
                             color: #000;
                         }
                         .month-section {
-                            margin-bottom: 20px; /* Space between month sections */
+                            margin-bottom: 15px; /* Slightly reduced */
                             page-break-after: auto;
                         }
                         .month-section:last-child {
                             page-break-after: avoid;
                         }
                         h2 { /* Month/Year headings */
-                            font-size: 1.4em; /* Relative to 11pt */
+                            font-size: 1.4em; /* Relative to 10pt (14pt) */
                             color: #000;
-                            border-bottom: 1px solid #ccc; /* Softer border */
-                            padding-bottom: 4px;
-                            margin-bottom: 15px;
+                            border-bottom: 1px solid #ccc;
+                            padding-bottom: 3px; /* Slightly reduced */
+                            margin-bottom: 12px; /* Reduced */
                             page-break-after: avoid;
                         }
-                        .events-grid { /* Container for event items within a month */
+                        .events-grid { /* Container for event items */
                             display: flex;
                             flex-wrap: wrap;
-                            gap: 10px; /* Space between cards */
+                            gap: 8px; /* Reduced gap for 3 columns */
                         }
                         .event-item {
-                            flex: 0 1 calc(50% - 5px); /* 2 columns, accounting for 10px gap */
+                            flex: 0 1 calc(33.333% - 6px); /* 3 columns, accounting for 8px gap (approx 5.33px per item from gap) */
                             box-sizing: border-box;
-                            margin-bottom: 10px; /* Vertical spacing for rows */
-                            padding: 10px;
-                            border: 1px solid #ccc; /* Softer border */
-                            border-radius: 4px; /* Slightly smaller radius */
+                            margin-bottom: 8px; /* Reduced margin */
+                            padding: 8px; /* Reduced padding */
+                            border: 1px solid #ccc;
+                            border-radius: 4px;
                             background-color: #f9f9f9;
                             page-break-inside: avoid;
                             display: flex;
-                            flex-direction: column; /* Stack content vertically */
+                            flex-direction: column;
                         }
                         .event-item h3 { /* Event title */
-                            font-size: 1.1em; /* Relative to 11pt */
+                            font-size: 1.1em; /* Relative to 10pt (11pt) */
                             margin-top: 0;
-                            margin-bottom: 8px;
-                            color: #444; /* Softer black */
+                            margin-bottom: 6px; /* Reduced margin */
+                            color: #444;
                         }
-                        .event-item p {
-                            margin: 4px 0;
-                            font-size: 0.9em; /* Relative to 11pt (approx 9.9pt) */
-                            line-height: 1.4;
+                        .event-item p { /* Date/Time/Location */
+                            margin: 3px 0; /* Reduced margin */
+                            font-size: 1em; /* Relative to 10pt (10pt) */
+                            line-height: 1.3; /* Slightly tighter for space */
                         }
                         .event-item p strong {
                             font-weight: bold;
@@ -147,10 +142,11 @@ export const generatePrintableEventsHtml = (events) => {
                         }
                         .description {
                             font-style: italic;
-                            font-size: 0.85em; /* Relative to 11pt (approx 9.35pt) */
-                            margin-top: auto; /* Pushes description to the bottom */
-                            padding-top: 6px; /* Space above description */
-                            color: #555; /* Lighter description text */
+                            font-size: 0.9em; /* Relative to 10pt (9pt) */
+                            margin-top: auto;
+                            padding-top: 5px; /* Reduced padding */
+                            color: #555;
+                            line-height: 1.3; /* Slightly tighter */
                         }
                         .no-print { display: none !important; }
                     }
@@ -160,18 +156,18 @@ export const generatePrintableEventsHtml = (events) => {
                         margin: 20px;
                         color: #333;
                         background-color: #fff;
-                        font-size: 11pt; /* Match print for consistency in preview */
+                        font-size: 10pt; /* Match print for consistency */
                         line-height: 1.4;
                     }
                      h1 {
                         text-align: center;
                         font-size: 1.8em;
-                        margin-bottom: 25px;
+                        margin-bottom: 20px;
                         color: #000;
                     }
                     .month-section {
-                        margin-bottom: 20px;
-                        padding: 15px;
+                        margin-bottom: 15px;
+                        padding: 10px; /* Slightly reduced */
                         border: 1px solid #eee;
                         border-radius: 8px;
                         background-color: #fdfdfd;
@@ -180,19 +176,19 @@ export const generatePrintableEventsHtml = (events) => {
                         font-size: 1.4em;
                         color: #000;
                         border-bottom: 1px solid #ccc;
-                        padding-bottom: 4px;
-                        margin-bottom: 15px;
+                        padding-bottom: 3px;
+                        margin-bottom: 12px;
                     }
                     .events-grid { /* Screen preview for grid */
                         display: flex;
                         flex-wrap: wrap;
-                        gap: 10px;
+                        gap: 8px; /* Match print */
                     }
                     .event-item {
-                        flex: 0 1 calc(50% - 5px); /* 2 columns for screen preview too */
+                        flex: 0 1 calc(33.333% - 6px); /* 3 columns for screen preview too */
                         box-sizing: border-box;
-                        margin-bottom: 10px;
-                        padding: 10px;
+                        margin-bottom: 8px;
+                        padding: 8px;
                         border: 1px solid #ccc;
                         border-radius: 4px;
                         background-color: #f9f9f9;
@@ -202,13 +198,13 @@ export const generatePrintableEventsHtml = (events) => {
                     .event-item h3 {
                         font-size: 1.1em;
                         margin-top: 0;
-                        margin-bottom: 8px;
+                        margin-bottom: 6px;
                         color: #444;
                     }
                     .event-item p {
-                        margin: 4px 0;
-                        font-size: 0.9em;
-                        line-height: 1.4;
+                        margin: 3px 0;
+                        font-size: 1em;
+                        line-height: 1.3;
                     }
                     .event-item p strong {
                         font-weight: bold;
@@ -216,15 +212,16 @@ export const generatePrintableEventsHtml = (events) => {
                     }
                     .description {
                         font-style: italic;
-                        font-size: 0.85em;
+                        font-size: 0.9em;
                         margin-top: auto;
-                        padding-top: 6px;
+                        padding-top: 5px;
                         color: #555;
+                        line-height: 1.3;
                     }
                 </style>
             </head>
             <body>
-                <h1>Event Schedule</h1>
+                <h1>Terminübersicht</h1>
                 ${eventsHtml}
             </body>
         </html>

@@ -103,22 +103,25 @@ const NextEventHighlight = ({
             </div>
           </div>
           {/* Right side: ICS Download and Days Until (common) */}
-          <div className="text-right sm:flex-shrink-0 sm:pl-4 mt-4 sm:mt-0">
+          <div className="flex flex-row flex-wrap items-center justify-end gap-x-4 gap-y-2 sm:flex-shrink-0 sm:pl-4 mt-4 sm:mt-0">
             {isSingleEvent && (
               <button
                 onClick={() => onDownloadICS(displayEvent)} // Use displayEvent
-                className="mb-2 sm:mb-4 p-2 bg-white dark:bg-slate-700 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300"
+                className="p-2 bg-white dark:bg-slate-700 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300"
                 title="Zu Kalender hinzufügen"
               >
                 <Calendar className="w-5 h-5" />
               </button>
             )}
-            <div className="text-xl sm:text-2xl font-bold text-amber-600 dark:text-amber-400">
-              {daysDisplayString}
+            {/* Grouping daysDisplay and its label for better flexbox handling */}
+            <div className="text-right"> {/* Keep text alignment for this block */}
+              <div className="text-xl sm:text-2xl font-bold text-amber-600 dark:text-amber-400">
+                {daysDisplayString}
+              </div>
+              {!(daysDisplayString === "Heute" || daysDisplayString === "Morgen" || daysDisplayString === "Vorbei") && (
+                <div className="text-xs sm:text-sm text-gray-500 dark:text-slate-500">bis zum Termin</div>
+              )}
             </div>
-            {!(daysDisplayString === "Heute" || daysDisplayString === "Morgen" || daysDisplayString === "Vorbei") && (
-              <div className="text-xs sm:text-sm text-gray-500 dark:text-slate-500">bis zum Termin</div>
-            )}
           </div>
         </div>
       </div>

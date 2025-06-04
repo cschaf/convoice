@@ -64,7 +64,7 @@ export const generatePrintableEventsHtml = (events) => {
                 <div class="event-item">
                     <h3>${event.title}</h3>
                     <p><strong>Datum:</strong> ${formatDateForPrint(event.date)}</p>
-                    ${event.startTime ? `<p><strong>Uhrzeit:</strong> ${event.startTime}${event.endTime ? ` - ${event.endTime}` : ''}</p>` : ''}
+                    ${(event.startTime && event.type !== 'geburtstag') ? `<p><strong>Uhrzeit:</strong> ${event.startTime}${event.endTime ? ` - ${event.endTime}` : ''}</p>` : ''}
                     ${event.location ? `<p><strong>Ort:</strong> ${event.location}</p>` : ''}
                 </div>`;
         });
@@ -95,6 +95,7 @@ export const generatePrintableEventsHtml = (events) => {
                         .month-section {
                             margin-bottom: 15px; /* Slightly reduced */
                             page-break-after: auto;
+                            page-break-inside: avoid !important; /* ADDED */
                         }
                         .month-section:last-child {
                             page-break-after: avoid;

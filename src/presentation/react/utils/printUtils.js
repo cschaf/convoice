@@ -48,6 +48,7 @@ export const generatePrintableEventsHtml = (events) => {
     for (const monthYear in groupedEvents) {
         eventsHtml += `<section class="month-section">`;
         eventsHtml += `<h2>${monthYear}</h2>`;
+        eventsHtml += `<div class="events-grid">`; // Added events-grid container
         // Sort events within each month by date and then by start time
         const sortedEventsInMonth = groupedEvents[monthYear].sort((a, b) => {
             const dateComparison = new Date(a.date) - new Date(b.date);
@@ -59,15 +60,21 @@ export const generatePrintableEventsHtml = (events) => {
         });
 
         sortedEventsInMonth.forEach(event => {
+            let dateTimeLine = `<p><strong>Date:</strong> ${formatDateForPrint(event.date)}`;
+            if (event.startTime) {
+                dateTimeLine += ` &nbsp;&nbsp;<strong>Time:</strong> ${event.startTime}${event.endTime ? ` - ${event.endTime}` : ''}`;
+            }
+            dateTimeLine += `</p>`;
+
             eventsHtml += `
                 <div class="event-item">
                     <h3>${event.title}</h3>
-                    <p><strong>Date:</strong> ${formatDateForPrint(event.date)}</p>
-                    ${event.startTime ? `<p><strong>Time:</strong> ${event.startTime}${event.endTime ? ` - ${event.endTime}` : ''}</p>` : ''}
+                    ${dateTimeLine}
                     ${event.location ? `<p><strong>Location:</strong> ${event.location}</p>` : ''}
                     ${event.description ? `<p class="description"><strong>Description:</strong> ${event.description}</p>` : ''}
                 </div>`;
         });
+        eventsHtml += `</div>`; // Closing events-grid container
         eventsHtml += `</section>`;
     }
 
@@ -79,48 +86,60 @@ export const generatePrintableEventsHtml = (events) => {
                     @media print {
                         body {
                             font-family: Arial, sans-serif;
-                            margin: 20mm; /* Standard A4 margins */
+                            margin: 20mm; /* A4 margins */
                             color: #333;
-                            width: auto; /* Let browser determine width for print */
+                            font-size: 11pt; /* Increased base font size */
+                            line-height: 1.4; /* Default line height */
+                            width: auto;
                         }
                         h1 {
                             text-align: center;
-                            font-size: 1.8em;
+                            font-size: 1.8em; /* Relative to 11pt */
                             margin-bottom: 25px;
                             color: #000;
                         }
                         .month-section {
-                            margin-bottom: 20px;
+                            margin-bottom: 20px; /* Space between month sections */
                             page-break-after: auto;
                         }
                         .month-section:last-child {
                             page-break-after: avoid;
                         }
-                        h2 { /* Month/Year heading */
-                            font-size: 1.5em;
+                        h2 { /* Month/Year headings */
+                            font-size: 1.4em; /* Relative to 11pt */
                             color: #000;
-                            border-bottom: 2px solid #ccc;
-                            padding-bottom: 5px;
+                            border-bottom: 1px solid #ccc; /* Softer border */
+                            padding-bottom: 4px;
                             margin-bottom: 15px;
-                            page-break-after: avoid; /* Avoid page break right after this header */
+                            page-break-after: avoid;
+                        }
+                        .events-grid { /* Container for event items within a month */
+                            display: flex;
+                            flex-wrap: wrap;
+                            gap: 10px; /* Space between cards */
                         }
                         .event-item {
-                            margin-bottom: 15px;
+                            flex: 0 1 calc(50% - 5px); /* 2 columns, accounting for 10px gap */
+                            box-sizing: border-box;
+                            margin-bottom: 10px; /* Vertical spacing for rows */
                             padding: 10px;
-                            border: 1px solid #ddd;
-                            border-radius: 5px;
+                            border: 1px solid #ccc; /* Softer border */
+                            border-radius: 4px; /* Slightly smaller radius */
                             background-color: #f9f9f9;
-                            page-break-inside: avoid; /* Crucial to keep event content together */
+                            page-break-inside: avoid;
+                            display: flex;
+                            flex-direction: column; /* Stack content vertically */
                         }
                         .event-item h3 { /* Event title */
-                            font-size: 1.2em;
+                            font-size: 1.1em; /* Relative to 11pt */
                             margin-top: 0;
                             margin-bottom: 8px;
-                            color: #333; /* Darker for better print readability */
+                            color: #444; /* Softer black */
                         }
                         .event-item p {
                             margin: 4px 0;
-                            font-size: 0.9em;
+                            font-size: 0.9em; /* Relative to 11pt (approx 9.9pt) */
+                            line-height: 1.4;
                         }
                         .event-item p strong {
                             font-weight: bold;
@@ -128,18 +147,21 @@ export const generatePrintableEventsHtml = (events) => {
                         }
                         .description {
                             font-style: italic;
-                            font-size: 0.85em;
-                            color: #444;
+                            font-size: 0.85em; /* Relative to 11pt (approx 9.35pt) */
+                            margin-top: auto; /* Pushes description to the bottom */
+                            padding-top: 6px; /* Space above description */
+                            color: #555; /* Lighter description text */
                         }
-                        /* Hide elements not meant for print if any were accidentally included */
                         .no-print { display: none !important; }
                     }
-                    /* Screen styles for previewing (optional but good for dev) */
+                    /* Screen styles for previewing */
                     body {
                         font-family: Arial, sans-serif;
                         margin: 20px;
                         color: #333;
-                        background-color: #fff; /* Ensure a white background for screen preview */
+                        background-color: #fff;
+                        font-size: 11pt; /* Match print for consistency in preview */
+                        line-height: 1.4;
                     }
                      h1 {
                         text-align: center;
@@ -155,28 +177,38 @@ export const generatePrintableEventsHtml = (events) => {
                         background-color: #fdfdfd;
                     }
                     h2 {
-                        font-size: 1.5em;
+                        font-size: 1.4em;
                         color: #000;
-                        border-bottom: 2px solid #ccc;
-                        padding-bottom: 5px;
+                        border-bottom: 1px solid #ccc;
+                        padding-bottom: 4px;
                         margin-bottom: 15px;
+                    }
+                    .events-grid { /* Screen preview for grid */
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: 10px;
                     }
                     .event-item {
-                        margin-bottom: 15px;
+                        flex: 0 1 calc(50% - 5px); /* 2 columns for screen preview too */
+                        box-sizing: border-box;
+                        margin-bottom: 10px;
                         padding: 10px;
-                        border: 1px solid #ddd;
-                        border-radius: 5px;
+                        border: 1px solid #ccc;
+                        border-radius: 4px;
                         background-color: #f9f9f9;
+                        display: flex;
+                        flex-direction: column;
                     }
                     .event-item h3 {
-                        font-size: 1.2em;
+                        font-size: 1.1em;
                         margin-top: 0;
                         margin-bottom: 8px;
-                        color: #333;
+                        color: #444;
                     }
                     .event-item p {
                         margin: 4px 0;
                         font-size: 0.9em;
+                        line-height: 1.4;
                     }
                     .event-item p strong {
                         font-weight: bold;
@@ -185,7 +217,9 @@ export const generatePrintableEventsHtml = (events) => {
                     .description {
                         font-style: italic;
                         font-size: 0.85em;
-                        color: #444;
+                        margin-top: auto;
+                        padding-top: 6px;
+                        color: #555;
                     }
                 </style>
             </head>

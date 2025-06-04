@@ -12,6 +12,7 @@ const EventsPage = ({
     downloadICS, // Prop
     mobileFiltersOpen, // Prop
     setMobileFiltersOpen, // Prop
+    onFilteredEventsUpdate, // New prop
 }) => {
     const [allTermine, setAllTermine] = useState([]);
     // Manages its own selectedYear state, initialized by the initialSelectedYear prop.
@@ -43,7 +44,7 @@ const EventsPage = ({
         loadData();
     }, [selectedYear, loadScheduleUseCase]);
 
-    const filteredTermine = useMemo(() => {
+    const filteredEvents = useMemo(() => {
         const now = new Date();
         const today = now.toISOString().split('T')[0];
         return allTermine.filter(termin => {
@@ -63,6 +64,12 @@ const EventsPage = ({
             return true;
         });
     }, [allTermine, searchTerm, selectedYear, typeFilter, timeFilter]);
+
+    useEffect(() => {
+        if (onFilteredEventsUpdate) {
+            onFilteredEventsUpdate(filteredEvents);
+        }
+    }, [filteredEvents, onFilteredEventsUpdate]);
 
     const nextDayEvents = useMemo(() => {
         if (allTermine.length === 0) return null;
@@ -94,7 +101,7 @@ const EventsPage = ({
                     timeFilter={timeFilter} // Internal state
                     setTimeFilter={setTimeFilter} // Internal state setter
                     availableYears={availableYears} // Prop
-                    filteredTermine={filteredTermine} // Derived state
+                    filteredTermine={filteredEvents} // Derived state
                 />
                 <div className="flex-1">
                     {nextDayEvents && nextDayEvents.length > 0 && timeFilter === 'upcoming' && (
@@ -107,7 +114,7 @@ const EventsPage = ({
                         <h2 className="text-2xl font-bold text-gray-900 mb-6 dark:text-white">
                             {timeFilter === 'upcoming' && nextDayEvents && nextDayEvents.length > 0 ? 'Weitere Termine' : 'Alle Termine'}
                         </h2>
-                        {filteredTermine.length === 0 ? (
+                        {filteredEvents.length === 0 ? (
                             <div className="text-center py-12">
                                 <Calendar className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
                                 <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Keine Termine gefunden</h3>
@@ -115,7 +122,7 @@ const EventsPage = ({
                             </div>
                         ) : (
                             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                                {filteredTermine
+                                {filteredEvents
                                     .filter(termin => timeFilter !== 'upcoming' || !nextDayEvents || !nextDayEvents.find(ne => ne.id === termin.id))
                                     .map((termin) => (
                                         <EventCard

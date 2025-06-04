@@ -1,5 +1,6 @@
 import React from 'react';
-import { Music, Filter, Menu, Search, FilePlus, Calendar, LogOut } from 'lucide-react'; // Removed Sun, Moon
+import { Music, Filter, Menu, Search, FilePlus, Calendar, LogOut, Printer } from 'lucide-react'; // Added Printer
+import { generatePrintableEventsHtml } from '../utils/printUtils.js'; // Added import
 
 const Header = ({
   searchTerm,
@@ -10,8 +11,40 @@ const Header = ({
   setTheme,
   onToggleDataEntryPage,
   isDataEntryPageActive,
-  onLogout // Added onLogout prop
+  onLogout, // Added onLogout prop
+  filteredEvents // Added filteredEvents prop
 }) => {
+
+  const handlePrintEvents = () => {
+    if (!filteredEvents || filteredEvents.length === 0) {
+        // Using sonner toast for consistency if available, otherwise alert
+        if (window.toast && typeof window.toast.warning === 'function') {
+            window.toast.warning("Keine Termine zum Drucken vorhanden.");
+        } else {
+            alert("Keine Termine zum Drucken vorhanden.");
+        }
+        return;
+    }
+    const printableHtml = generatePrintableEventsHtml(filteredEvents);
+    const printWindow = window.open('', '_blank', 'height=800,width=600');
+    if (printWindow) {
+        printWindow.document.open();
+        printWindow.document.write(printableHtml);
+        printWindow.document.close();
+        // Delay printing slightly to ensure content is rendered, especially complex CSS or images
+        setTimeout(() => {
+            printWindow.print();
+            // Not auto-closing: printWindow.close();
+        }, 250);
+    } else {
+        if (window.toast && typeof window.toast.error === 'function') {
+            window.toast.error("Druckfenster konnte nicht geöffnet werden. Bitte Pop-up-Blocker überprüfen.");
+        } else {
+            alert("Druckfenster konnte nicht geöffnet werden. Bitte Pop-up-Blocker überprüfen.");
+        }
+    }
+  };
+
   return (
     <header className="bg-white shadow-lg border-b-4 border-amber-400 dark:bg-gray-800 dark:border-amber-600">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -61,15 +94,24 @@ const Header = ({
         </div>
 
         {!isDataEntryPageActive && (
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Termine durchsuchen..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-            />
+          <div className="flex items-center space-x-2 max-w-md"> {/* Modified: flex container for search and print */}
+            <div className="relative flex-grow"> {/* Modified: search input takes available space */}
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Termine durchsuchen..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+              />
+            </div>
+            <button
+              onClick={handlePrintEvents}
+              className="p-3 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 transition-colors"
+              title="Sichtbare Termine drucken"
+            >
+              <Printer className="w-5 h-5" />
+            </button>
           </div>
         )}
       </div>

@@ -26,7 +26,7 @@ const Header = ({
         return;
     }
     const printableHtml = generatePrintableEventsHtml(filteredEvents);
-    const printWindow = window.open('', '_blank', 'height=800,width=600');
+    const printWindow = window.open('', 'printWindow_' + Date.now(), 'height=800,width=600');
     if (printWindow) {
         printWindow.document.open();
         printWindow.document.write(printableHtml);

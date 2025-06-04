@@ -1,6 +1,5 @@
 import React from 'react';
 import { Music, Filter, Menu, Search, FilePlus, Calendar, LogOut, Printer } from 'lucide-react'; // Added Printer
-import { generatePrintableEventsHtml } from '../utils/printUtils.js'; // Added import
 
 const Header = ({
   searchTerm,
@@ -16,33 +15,18 @@ const Header = ({
 }) => {
 
   const handlePrintEvents = () => {
-    if (!filteredEvents || filteredEvents.length === 0) {
-        // Using sonner toast for consistency if available, otherwise alert
-        if (window.toast && typeof window.toast.warning === 'function') {
-            window.toast.warning("Keine Termine zum Drucken vorhanden.");
-        } else {
-            alert("Keine Termine zum Drucken vorhanden.");
-        }
-        return;
-    }
-    const printableHtml = generatePrintableEventsHtml(filteredEvents);
-    const printWindow = window.open('', 'printWindow_' + Date.now(), 'height=800,width=600');
-    if (printWindow) {
-        printWindow.document.open();
-        printWindow.document.write(printableHtml);
-        printWindow.document.close();
-        // Delay printing slightly to ensure content is rendered, especially complex CSS or images
-        setTimeout(() => {
-            printWindow.print();
-            printWindow.close(); // Now auto-closing
-        }, 250);
-    } else {
-        if (window.toast && typeof window.toast.error === 'function') {
-            window.toast.error("Druckfenster konnte nicht geöffnet werden. Bitte Pop-up-Blocker überprüfen.");
-        } else {
-            alert("Druckfenster konnte nicht geöffnet werden. Bitte Pop-up-Blocker überprüfen.");
-        }
-    }
+    // Optional: Check if there's anything to print or if the context is appropriate
+    // For now, we'll just directly call window.print() as requested.
+    // The user should be on the EventsPage, so filteredEvents might still be relevant
+    // if we want to show a message if no events are visible.
+    // However, the request is to disable the *preview*, so direct printing is key.
+
+    // Consider if a check for filteredEvents is still desired before printing.
+    // For simplicity in disabling the preview, let's remove it for now.
+    // If no events are shown on the page, printing it might be confusing,
+    // but that's inherent to printing the main view.
+
+    window.print(); // Directly invoke browser's print dialog for the current page
   };
 
   return (

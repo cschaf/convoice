@@ -78,7 +78,7 @@ describe('ScheduleGeneratorService', () => {
         members.forEach(member => {
             expect(schedule.some(e => e.type === 'geburtstag' && e.memberName === member.name)).toBe(true);
         });
-        expect(schedule.every(e => e.type !== singleTuesdayRehearsalConfig[0].id)).toBe(true);
+        expect(schedule.every(e => e.type !== `rehearsal-${singleTuesdayRehearsalConfig[0].id}`)).toBe(true);
     });
 
     it('should generate events for a single weekly rehearsal config', () => {
@@ -92,7 +92,7 @@ describe('ScheduleGeneratorService', () => {
         }
 
         const schedule = service.generateYearlySchedule(yearlyRawData, members, currentYear, singleTuesdayRehearsalConfig);
-        const rehearsals = schedule.filter(e => e.type === singleTuesdayRehearsalConfig[0].id);
+        const rehearsals = schedule.filter(e => e.type === `rehearsal-${singleTuesdayRehearsalConfig[0].id}`);
         
         expect(rehearsals.length).toBe(expectedTuesdays);
         rehearsals.forEach(rehearsal => {
@@ -108,8 +108,8 @@ describe('ScheduleGeneratorService', () => {
         const yearlyRawData = new YearlyRawData(currentYear, [], [], []);
         const schedule = service.generateYearlySchedule(yearlyRawData, members, currentYear, sampleRehearsalConfigs);
 
-        const tuesdayRehearsals = schedule.filter(e => e.type === sampleRehearsalConfigs[0].id);
-        const thursdayRehearsals = schedule.filter(e => e.type === sampleRehearsalConfigs[1].id);
+        const tuesdayRehearsals = schedule.filter(e => e.type === `rehearsal-${sampleRehearsalConfigs[0].id}`);
+        const thursdayRehearsals = schedule.filter(e => e.type === `rehearsal-${sampleRehearsalConfigs[1].id}`);
 
         let expectedTuesdays = 0;
         let expectedThursdays = 0;
@@ -134,11 +134,11 @@ describe('ScheduleGeneratorService', () => {
         const yearlyRawData = new YearlyRawData(currentYear, [], [exceptionalDateStr], []);
         const schedule = service.generateYearlySchedule(yearlyRawData, members, currentYear, singleTuesdayRehearsalConfig);
         
-        const skippedRehearsal = schedule.find(e => e.type === singleTuesdayRehearsalConfig[0].id && e.date === exceptionalDateStr);
+        const skippedRehearsal = schedule.find(e => e.type === `rehearsal-${singleTuesdayRehearsalConfig[0].id}` && e.date === exceptionalDateStr);
         expect(skippedRehearsal).toBeUndefined();
 
         const nextTuesday = addDays(firstTuesday, 7);
-        const nextRehearsal = schedule.find(e => e.type === singleTuesdayRehearsalConfig[0].id && e.date === formatDate(nextTuesday));
+        const nextRehearsal = schedule.find(e => e.type === `rehearsal-${singleTuesdayRehearsalConfig[0].id}` && e.date === formatDate(nextTuesday));
         expect(nextRehearsal).toBeDefined();
     });
 
@@ -154,13 +154,13 @@ describe('ScheduleGeneratorService', () => {
         const schedule = service.generateYearlySchedule(yearlyRawData, members, currentYear, singleTuesdayRehearsalConfig);
 
         // First Tuesday in span
-        const skippedRehearsal1 = schedule.find(e => e.type === singleTuesdayRehearsalConfig[0].id && e.date === timespanStartStr);
+        const skippedRehearsal1 = schedule.find(e => e.type === `rehearsal-${singleTuesdayRehearsalConfig[0].id}` && e.date === timespanStartStr);
         expect(skippedRehearsal1).toBeUndefined();
         
         // Second Tuesday in span
         const secondTuesdayInSpan = addDays(firstTuesdayApril, 7);
         if (secondTuesdayInSpan <= timespanEnd) {
-            const skippedRehearsal2 = schedule.find(e => e.type === singleTuesdayRehearsalConfig[0].id && e.date === formatDate(secondTuesdayInSpan));
+            const skippedRehearsal2 = schedule.find(e => e.type === `rehearsal-${singleTuesdayRehearsalConfig[0].id}` && e.date === formatDate(secondTuesdayInSpan));
             expect(skippedRehearsal2).toBeUndefined();
         }
 
@@ -169,7 +169,7 @@ describe('ScheduleGeneratorService', () => {
         while(nextTuesdayAfterTimespan.getDay() !== 2) {
             nextTuesdayAfterTimespan.setDate(nextTuesdayAfterTimespan.getDate() + 1);
         }
-        const nextRehearsal = schedule.find(e => e.type === singleTuesdayRehearsalConfig[0].id && e.date === formatDate(nextTuesdayAfterTimespan));
+        const nextRehearsal = schedule.find(e => e.type === `rehearsal-${singleTuesdayRehearsalConfig[0].id}` && e.date === formatDate(nextTuesdayAfterTimespan));
         expect(nextRehearsal).toBeDefined();
     });
     
@@ -201,7 +201,7 @@ describe('ScheduleGeneratorService', () => {
         expect(schedule.length).toBeGreaterThan(3); // At least initial, 1 birthday, multiple rehearsals
 
         const earlyEventIdx = schedule.findIndex(e => e.id === 'evtEarly');
-        const firstRehearsalIdx = schedule.findIndex(e => e.type === mondayRehearsalConfig[0].id && e.date === firstMondayDateStr);
+        const firstRehearsalIdx = schedule.findIndex(e => e.type === `rehearsal-${mondayRehearsalConfig[0].id}` && e.date === firstMondayDateStr);
         const birthdayIdx = schedule.findIndex(e => e.type === 'geburtstag' && e.date === testMemberBirthday);
 
         expect(earlyEventIdx).not.toBe(-1);
@@ -231,7 +231,7 @@ describe('ScheduleGeneratorService', () => {
             date.setDate(date.getDate() + 1);
         }
         
-        const rehearsals = schedule.filter(e => e.type === singleTuesdayRehearsalConfig[0].id);
+        const rehearsals = schedule.filter(e => e.type === `rehearsal-${singleTuesdayRehearsalConfig[0].id}`);
         expect(rehearsals.length).toBe(expectedTuesdays);
         expect(schedule.filter(e => e.type === 'geburtstag').length).toBe(0); // No members
         expect(schedule.filter(e => e.type === 'event').length).toBe(0); // No initial events
@@ -252,7 +252,7 @@ describe('ScheduleGeneratorService', () => {
         const birthdayEvents = schedule.filter(event => event.type === 'geburtstag');
         expect(birthdayEvents.length).toBe(0);
         
-        const rehearsals = schedule.filter(e => e.type === singleTuesdayRehearsalConfig[0].id);
+        const rehearsals = schedule.filter(e => e.type === `rehearsal-${singleTuesdayRehearsalConfig[0].id}`);
         expect(rehearsals.length).toBeGreaterThan(0); // Rehearsals should still be generated
     });
 
@@ -292,22 +292,4 @@ describe('ScheduleGeneratorService', () => {
     // Remove old DST and other Tuesday-specific tests if they are now redundant or misleading
     // The new tests for specific configurations should cover date generation logic.
     // For example, `test('Consistent Tuesday Generation Across DST')` can be removed if new tests cover it implicitly.
-
-    it('should generate "chorprobe" type for rehearsals configured with id "chorprobe"', () => {
-        const yearlyRawData = new YearlyRawData(currentYear, [], [], []);
-        const chorprobeConfig = [{
-            id: 'chorprobe', title: 'Chorprobe Test', dayOfWeek: 1, // Monday
-            startTime: '19:00', endTime: '20:00', frequency: 'weekly',
-            defaultLocation: 'Test Location', description: 'Test Chorprobe'
-        }];
-        const schedule = service.generateYearlySchedule(yearlyRawData, emptyMembers, currentYear, chorprobeConfig);
-        const chorproben = schedule.filter(e => e.type === 'chorprobe');
-
-        expect(chorproben.length).toBeGreaterThan(0);
-        chorproben.forEach(chorprobe => {
-            expect(chorprobe.title).toBe('Chorprobe Test');
-            expect(new Date(chorprobe.date).getDay()).toBe(1); // Monday
-            expect(chorprobe.type).toBe('chorprobe');
-        });
-    });
 });

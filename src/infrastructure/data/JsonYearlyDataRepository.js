@@ -27,7 +27,8 @@ export class JsonYearlyDataRepository extends IYearlyDataRepository {
             // For a standard ES module dynamic import, the path might need to be resolvable
             // differently, e.g. via an import map or full URL if running in browser directly.
             // Assuming a bundler handles this path correctly.
-            const yearlyDataModule = await import(`../../data/${year}.json`, { assert: { type: "json" } });
+            const assetURL = new URL(`../../data/${year}.json`, import.meta.url).href;
+            const yearlyDataModule = await import(assetURL, { assert: { type: "json" } });
             const data = yearlyDataModule.default !== undefined ? yearlyDataModule.default : yearlyDataModule;
 
             // Validate the structure of the loaded data.

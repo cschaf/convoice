@@ -1,7 +1,7 @@
 // src/infrastructure/data/JsonAppConfigRepository.js
 import { IAppConfigRepository } from '../../application/repositories/IAppConfigRepository.js';
 import AppConfig from '../../domain/entities/AppConfig.js';
-import configData from '../../data/config.json' assert { type: "json" }; // Direct import
+import configData from '../../data/config.json'; // Direct import
 
 export class JsonAppConfigRepository extends IAppConfigRepository {
     constructor() {

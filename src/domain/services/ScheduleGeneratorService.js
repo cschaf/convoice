@@ -114,7 +114,7 @@ class ScheduleGeneratorService {
                         dateStr,
                         config.startTime,
                         config.endTime,
-                        config.id, // Event type based on config id
+                        `rehearsal-${config.id}`, // Event type based on config id
                         config.description || '', // Default to empty string if no description
                         config.defaultLocation || '' // Default to empty string if no location
                     ));

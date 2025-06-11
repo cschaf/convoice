@@ -50,7 +50,6 @@ const ConVoiceApp = () => {
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
     const [showDataEntryPage, setShowDataEntryPage] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [managedFilteredEvents, setManagedFilteredEvents] = useState([]); // New state
 
     const handleLoginSuccess = () => {
       setIsAuthenticated(true);
@@ -59,11 +58,6 @@ const ConVoiceApp = () => {
     const handleLogout = () => {
       localStorage.removeItem('authToken');
       setIsAuthenticated(false);
-    };
-
-    // New handler
-    const handleFilteredEventsUpdate = (events) => {
-        setManagedFilteredEvents(events);
     };
 
     const handleToggleDataEntryPage = () => {
@@ -125,7 +119,6 @@ const ConVoiceApp = () => {
                 onToggleDataEntryPage={handleToggleDataEntryPage}
                 isDataEntryPageActive={showDataEntryPage}
                 onLogout={handleLogout}
-                filteredEvents={managedFilteredEvents} // Pass data to Header
             />
 
             {showDataEntryPage ? (
@@ -150,7 +143,6 @@ const ConVoiceApp = () => {
                     downloadICS={downloadICS}
                     mobileFiltersOpen={mobileFiltersOpen}
                     setMobileFiltersOpen={setMobileFiltersOpen}
-                    onFilteredEventsUpdate={handleFilteredEventsUpdate} // Pass callback to EventsPage
                 />
             )}
             <ScrollToTopButton />

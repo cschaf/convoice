@@ -12,7 +12,6 @@ const EventsPage = ({
     downloadICS, // Prop
     mobileFiltersOpen, // Prop
     setMobileFiltersOpen, // Prop
-    onFilteredEventsUpdate, // New prop
 }) => {
     const [allTermine, setAllTermine] = useState([]);
     // Manages its own selectedYear state, initialized by the initialSelectedYear prop.
@@ -64,12 +63,6 @@ const EventsPage = ({
             return true;
         });
     }, [allTermine, searchTerm, selectedYear, typeFilter, timeFilter]);
-
-    useEffect(() => {
-        if (onFilteredEventsUpdate) {
-            onFilteredEventsUpdate(filteredEvents);
-        }
-    }, [filteredEvents, onFilteredEventsUpdate]);
 
     const nextDayEvents = useMemo(() => {
         if (allTermine.length === 0) return null;

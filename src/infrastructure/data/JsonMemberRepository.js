@@ -1,7 +1,7 @@
 // src/infrastructure/data/JsonMemberRepository.js
 import { IMemberRepository } from '../../application/repositories/IMemberRepository.js';
 import Member from '../../domain/entities/Member.js';
-import membersData from '../../data/members.json' assert { type: "json" }; // Direct import
+import membersData from '../../data/members.json'; // Direct import
 
 export class JsonMemberRepository extends IMemberRepository {
     constructor() {

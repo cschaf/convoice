@@ -2,7 +2,7 @@
 import { IYearlyDataRepository } from '../../application/repositories/IYearlyDataRepository.js';
 import YearlyRawData from '../../domain/entities/YearlyRawData.js';
 // AppConfig entity is not directly used here, but configData for availableYears is.
-import configData from '../../data/config.json'; // For availableYears from config
+import configData from '../../data/config.json' assert { type: "json" }; // For availableYears from config
 
 export class JsonYearlyDataRepository extends IYearlyDataRepository {
     constructor() {
@@ -27,7 +27,7 @@ export class JsonYearlyDataRepository extends IYearlyDataRepository {
             // For a standard ES module dynamic import, the path might need to be resolvable
             // differently, e.g. via an import map or full URL if running in browser directly.
             // Assuming a bundler handles this path correctly.
-            const yearlyDataModule = await import(`../../data/${year}.json`);
+            const yearlyDataModule = await import(`../../data/${year}.json`, { assert: { type: "json" } });
             const data = yearlyDataModule.default !== undefined ? yearlyDataModule.default : yearlyDataModule;
 
             // Validate the structure of the loaded data.

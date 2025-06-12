@@ -5,28 +5,8 @@
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="manifest" href="/manifest.json">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ConVoice - Gospel Chor Bremen</title>
-    <meta name="description" content="Terminverwaltung für den ConVoice Gospel Chor Bremen" />
-    <script>
-      try {
-        const theme = localStorage.getItem('theme');
-        if (theme === 'dark') {
-          document.documentElement.classList.add('dark');
-          document.documentElement.style.colorScheme = 'dark';
-        } else if (theme === 'light') {
-          document.documentElement.classList.remove('dark');
-          document.documentElement.style.colorScheme = 'light';
-        } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          document.documentElement.classList.add('dark');
-          document.documentElement.style.colorScheme = 'dark';
-        } else {
-          document.documentElement.classList.remove('dark');
-          document.documentElement.style.colorScheme = 'light';
-        }
-      } catch (e) {
-        console.error('Error applying initial theme:', e);
-      }
-    </script>
+    <title>Camunda-Dashboard</title>
+    <meta name="description" content="Camunda-Dashboard" />
 </head>
 <body>
 <div id="root"></div>

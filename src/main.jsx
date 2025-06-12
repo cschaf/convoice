@@ -1,17 +1,17 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import ConVoiceApp from './presentation/react/ConVoiceApp.jsx'
+import App from './presentation/react/App.jsx'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
-        <ConVoiceApp />
+        <App />
     </React.StrictMode>,
 )
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/convoice/sw.js')
+    navigator.serviceWorker.register('/camunda-dashboard/sw.js')
       .then(registration => {
         console.log('ServiceWorker registration successful with scope: ', registration.scope);
       })

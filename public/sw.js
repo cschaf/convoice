@@ -1,8 +1,8 @@
-const CACHE_NAME = 'convoice-cache-v2'; // Updated cache name
+const CACHE_NAME = 'camunda-dashboard-cache-v1'; // Updated cache name
 const APP_SHELL_URLS = [
-  '/convoice/manifest.json', // Assuming this is the correct path after deployment
-  '/convoice/icon-192x192.png',
-  '/convoice/icon-512x512.png'
+  '/camunda-dashboard/manifest.json', // Assuming this is the correct path after deployment
+  '/camunda-dashboard/icon-192x192.png',
+  '/camunda-dashboard/icon-512x512.png'
   // DO NOT cache index.html or specific JS/CSS bundles here if they are versioned by hash
   // and index.html needs to be network-first for navigations.
   // index.html itself will be cached on successful network fetch for offline.
@@ -80,8 +80,8 @@ self.addEventListener('fetch', event => {
               // For now, just let the browser handle the error if nothing is cached.
               console.error('[SW] Navigation request not in cache and network failed:', request.url);
               // You might want to return a custom offline.html page here:
-              // return caches.match('/convoice/offline.html');
-              return new Response('Network error and not in cache. ConVoice is offline.', {
+              // return caches.match('/camunda-dashboard/offline.html');
+              return new Response('Network error and not in cache. camunda-dashboard is offline.', {
                 status: 404,
                 statusText: 'Network error and not in cache.'
               });

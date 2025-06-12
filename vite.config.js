@@ -5,7 +5,7 @@ import tailwindcss from '@tailwindcss/vite'
 // https://vitejs.dev/config/
 export default defineConfig({
     plugins: [tailwindcss(),react()],
-    base: '/convoice', // Ersetze mit deinem Repository-Namen
+    base: '/camunda-dashboard', // Ersetze mit deinem Repository-Namen
     build: {
         outDir: 'dist'
     }

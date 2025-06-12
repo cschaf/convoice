@@ -1,7 +1,7 @@
 {
-  "name": "convoice",
+  "name": "camunda-dashboard",
   "private": true,
-  "homepage": "https://cschaf.github.io/convoice/",
+  "homepage": "https://cschaf.github.io/camunda-dashboard/",
   "version": "0.0.0",
   "type": "module",
   "scripts": {

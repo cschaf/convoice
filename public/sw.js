@@ -1,8 +1,8 @@
 const CACHE_NAME = 'convoice-cache-v2'; // Updated cache name
 const APP_SHELL_URLS = [
-  '/convoice/manifest.json', // Assuming this is the correct path after deployment
-  '/convoice/icon-192x192.png',
-  '/convoice/icon-512x512.png'
+  '/manifest.json', // Assuming this is the correct path after deployment
+  '/icon-192x192.png',
+  '/icon-512x512.png'
   // DO NOT cache index.html or specific JS/CSS bundles here if they are versioned by hash
   // and index.html needs to be network-first for navigations.
   // index.html itself will be cached on successful network fetch for offline.

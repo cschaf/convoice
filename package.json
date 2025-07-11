@@ -1,7 +1,7 @@
 {
   "name": "convoice",
   "private": true,
-  "homepage": "https://cschaf.github.io/convoice/",
+  "homepage": "https://convoice.schaflabs.com",
   "version": "0.0.0",
   "type": "module",
   "scripts": {

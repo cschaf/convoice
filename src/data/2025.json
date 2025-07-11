@@ -79,6 +79,16 @@
       "type": "event",
       "description": "Gemeinsames Singen",
       "location": "Christus Kirche"
+    },
+   {
+      "id": "evt-1752163619927-927ak",
+      "title": "Probe mit Chor ohne Grenzen",
+      "date": "2025-09-27",
+      "startTime": "18:00",
+      "endTime": "19:30",
+      "type": "event",
+      "description": "Probe für unser gemeinsames Event",
+      "location": "Woltmershausen"
     }
    ],
    "exceptionalDates":[

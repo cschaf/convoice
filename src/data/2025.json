@@ -71,6 +71,16 @@
       "location": "Huchting"
     },
     {
+      "id": "evt-1754384514450-b1233",
+      "title": "Gottesdient 1. Advent mit anschließendem singen auf den Treppenstufen",
+      "date": "2025-11-30",
+      "startTime": "11:00",
+      "endTime": "12:30",
+      "type": "event",
+      "description": "Auftritt",
+      "location": "Huchting"
+    },
+    {
       "id": "evt-1748585455248-sb86t",
       "title": "Adventsmusik",
       "date": "2025-12-06",

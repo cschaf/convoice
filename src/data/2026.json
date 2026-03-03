@@ -1,22 +1,65 @@
 {
-  "events": [],
-  "exceptionalDates": [],
-  "exceptionalTimespans": [
-    {
-      "start": "2026-01-01",
-      "end": "2026-01-19"
-    },
-    {
-      "start": "2026-07-02",
-      "end": "2026-08-12"
-    },
-    {
-      "start": "2026-10-12",
-      "end": "2026-10-24"
-    },
-    {
-      "start": "2026-12-23",
-      "end": "2027-01-09"
-    }
-  ]
+   "events":[
+      {
+         "id":"1",
+         "title":"25. Jubiläum Chor ohne Grenzen",
+         "date":"2026-03-14",
+         "startTime":"17:00",
+         "endTime":"20:00",
+         "type":"event",
+         "description":"Gottesdienst + Feier mit Chor ohne Grenzen",
+         "location":"Markusgemeinde, Arsterdamm 12-18"
+      },
+      {
+         "id":"2",
+         "title":"Ostergottesdienst",
+         "date":"2026-04-05",
+         "startTime":"06:00",
+         "endTime":"07:00",
+         "type":"event",
+         "description":"Gottesdienst + Gemeinsames Frühstück",
+         "location":"Huchting"
+      },
+      {
+         "id":"3",
+         "title":"Auftritt",
+         "date":"2026-05-09",
+         "startTime":"14:00",
+         "endTime":"15:00",
+         "type":"event",
+         "description":"Auftritt auf Konfirmation",
+         "location":"Huchting"
+      },
+      {
+         "id":"4",
+         "title":"Konzert",
+         "date":"2026-06-07",
+         "startTime":"17:00",
+         "endTime":"18:30",
+         "type":"event",
+         "description":"Konzert mit Chor ohne Grenzen",
+         "location":"Huchting, Bonhoeffer Kirche"
+      }
+   ],
+   "exceptionalDates":[
+      
+   ],
+   "exceptionalTimespans":[
+      {
+         "start":"2026-01-01",
+         "end":"2026-01-19"
+      },
+      {
+         "start":"2026-07-02",
+         "end":"2026-08-12"
+      },
+      {
+         "start":"2026-10-12",
+         "end":"2026-10-24"
+      },
+      {
+         "start":"2026-12-23",
+         "end":"2027-01-09"
+      }
+   ]
 }

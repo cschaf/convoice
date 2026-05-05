@@ -39,6 +39,26 @@
          "type":"event",
          "description":"Konzert mit Chor ohne Grenzen",
          "location":"Huchting, Bonhoeffer Kirche"
+      },
+      {
+         "id":"5",
+         "title":"Konzert",
+         "date":"2026-09-19",
+         "startTime":"18:00",
+         "endTime":"19:30",
+         "type":"event",
+         "description":"Konzert von ConVoice",
+         "location":"Huchting, St. Georgs Kirche"
+      },
+      {
+         "id":"6",
+         "title":"Konzert",
+         "date":"2026-09-20",
+         "startTime":"16:00",
+         "endTime":"17:30",
+         "type":"event",
+         "description":"Konzert von ConVoice",
+         "location":"Woltmershausen, Christus Kirche"
       }
    ],
    "exceptionalDates":[

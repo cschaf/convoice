@@ -1,6 +1,36 @@
 {
   "events": [
     {
+      "id": "1",
+      "title": "25. Jubiläum Chor ohne Grenzen",
+      "date": "2026-03-14",
+      "startTime": "17:00",
+      "endTime": "20:00",
+      "type": "event",
+      "description": "Gottesdienst + Feier mit Chor ohne Grenzen",
+      "location": "Markusgemeinde, Arsterdamm 12-18"
+    },
+    {
+      "id": "2",
+      "title": "Ostergottesdienst",
+      "date": "2026-04-05",
+      "startTime": "06:00",
+      "endTime": "07:00",
+      "type": "event",
+      "description": "Gottesdienst + Gemeinsames Frühstück",
+      "location": "Huchting"
+    },
+    {
+      "id": "3",
+      "title": "Auftritt",
+      "date": "2026-05-09",
+      "startTime": "14:00",
+      "endTime": "15:00",
+      "type": "event",
+      "description": "Auftritt auf Konfirmation",
+      "location": "Huchting"
+    },
+    {
       "id": "evt-2026-05-23-probe-st-markus",
       "title": "Probe",
       "date": "2026-05-23",
@@ -11,7 +41,7 @@
       "location": "St. Markus, Arsterdamm"
     },
     {
-      "id": "evt-2026-06-07-konzert-dietrich-bonhoeffer-gemeinde",
+      "id": "4",
       "title": "Konzert",
       "date": "2026-06-07",
       "startTime": "17:00",
@@ -21,7 +51,7 @@
       "location": "Dietrich-Bonhoeffer-Gemeinde, Luxemburger Str. 29"
     },
     {
-      "id": "evt-2026-09-19-konzert-woltmershausen",
+      "id": "5",
       "title": "Konzert",
       "date": "2026-09-19",
       "startTime": "19:00",
@@ -31,7 +61,7 @@
       "location": "Woltmershausen"
     },
     {
-      "id": "evt-2026-09-20-offenes-konzert-huchting",
+      "id": "6",
       "title": "Offenes Konzert",
       "date": "2026-09-20",
       "startTime": "16:00",
@@ -82,6 +112,7 @@
     }
   ],
   "exceptionalDates": [
+    "2026-04-07",
     "2026-07-07",
     "2026-07-14",
     "2026-07-21",
@@ -91,6 +122,14 @@
     "2026-10-20"
   ],
   "exceptionalTimespans": [
+    {
+      "start": "2026-01-01",
+      "end": "2026-01-19"
+    },
+    {
+      "start": "2026-10-12",
+      "end": "2026-10-24"
+    },
     {
       "start": "2026-12-23",
       "end": "2027-01-09"

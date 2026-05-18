@@ -1,15 +1,96 @@
 {
-  "events": [],
-  "exceptionalDates": [],
+  "events": [
+    {
+      "id": "evt-2026-05-23-probe-st-markus",
+      "title": "Probe",
+      "date": "2026-05-23",
+      "startTime": "18:00",
+      "endTime": "19:00",
+      "type": "event",
+      "description": "Chor ohne Grenzen",
+      "location": "St. Markus, Arsterdamm"
+    },
+    {
+      "id": "evt-2026-06-07-konzert-dietrich-bonhoeffer-gemeinde",
+      "title": "Konzert",
+      "date": "2026-06-07",
+      "startTime": "17:00",
+      "endTime": "19:00",
+      "type": "event",
+      "description": "Chor ohne Grenzen",
+      "location": "Dietrich-Bonhoeffer-Gemeinde, Luxemburger Str. 29"
+    },
+    {
+      "id": "evt-2026-09-19-konzert-woltmershausen",
+      "title": "Konzert",
+      "date": "2026-09-19",
+      "startTime": "19:00",
+      "endTime": "21:00",
+      "type": "event",
+      "description": "Chor ohne Grenzen",
+      "location": "Woltmershausen"
+    },
+    {
+      "id": "evt-2026-09-20-offenes-konzert-huchting",
+      "title": "Offenes Konzert",
+      "date": "2026-09-20",
+      "startTime": "16:00",
+      "endTime": "19:00",
+      "type": "event",
+      "description": "",
+      "location": "Huchting"
+    },
+    {
+      "id": "evt-2026-10-31-gottesdienst-huchting",
+      "title": "Gottesdienst",
+      "date": "2026-10-31",
+      "startTime": "11:00",
+      "endTime": "13:00",
+      "type": "event",
+      "description": "anschl. Brunch",
+      "location": "Huchting"
+    },
+    {
+      "id": "evt-2026-11-29-gottesdienst-huchting",
+      "title": "Gottesdienst",
+      "date": "2026-11-29",
+      "startTime": "11:00",
+      "endTime": "13:00",
+      "type": "event",
+      "description": "1. Advent, anschl. Singen auf den Kirchenstufen",
+      "location": "Huchting"
+    },
+    {
+      "id": "evt-2026-12-12-adventsmusik-huchting",
+      "title": "Adventsmusik",
+      "date": "2026-12-12",
+      "startTime": "16:00",
+      "endTime": "17:00",
+      "type": "event",
+      "description": "",
+      "location": "Huchting"
+    },
+    {
+      "id": "evt-2026-12-24-christmette-huchting",
+      "title": "Christmette",
+      "date": "2026-12-24",
+      "startTime": "23:00",
+      "endTime": "00:00",
+      "type": "event",
+      "description": "",
+      "location": "Huchting"
+    }
+  ],
+  "exceptionalDates": [
+    "2026-07-07",
+    "2026-07-14",
+    "2026-07-21",
+    "2026-08-04",
+    "2026-08-25",
+    "2026-10-13",
+    "2026-10-20"
+  ],
   "exceptionalTimespans": [
-    {
-      "start": "2026-07-02",
-      "end": "2026-08-12"
-    },
-    {
-      "start": "2026-10-12",
-      "end": "2026-10-24"
-    },
     {
       "start": "2026-12-23",
       "end": "2027-01-09"

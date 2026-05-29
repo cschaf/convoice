@@ -39,6 +39,16 @@
       "type": "event",
       "description": "Chor ohne Grenzen",
       "location": "St. Markus, Arsterdamm"
+    }, 
+    {
+      "id": "4.1",
+      "title": "Generalprobe fürs Konzert",
+      "date": "2026-06-02",
+      "startTime": "18:30",
+      "endTime": "20:00",
+      "type": "event",
+      "description": "Probe mit Chor ohne Grenzen",
+      "location": "Dietrich-Bonhoeffer-Gemeinde, Luxemburger Str. 29"
     },
     {
       "id": "4",
@@ -112,6 +122,7 @@
     }
   ],
   "exceptionalDates": [
+    "2026-06-02",
     "2026-04-07",
     "2026-07-07",
     "2026-07-14",

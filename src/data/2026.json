@@ -67,7 +67,7 @@
       "startTime": "19:00",
       "endTime": "21:00",
       "type": "event",
-      "description": "Chor ohne Grenzen",
+      "description": "",
       "location": "Woltmershausen"
     },
     {
@@ -75,7 +75,7 @@
       "title": "Offenes Konzert",
       "date": "2026-09-20",
       "startTime": "16:00",
-      "endTime": "19:00",
+      "endTime": "18:00",
       "type": "event",
       "description": "",
       "location": "Huchting"
@@ -126,6 +126,7 @@
     "2026-04-07",
     "2026-07-21",
     "2026-08-04",
+    "2026-08-11",
     "2026-08-25",
     "2026-10-13",
     "2026-10-20"
